@@ -7,6 +7,10 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors({
+  origin: 'https://lifproject-management.vercel.app/'
+}));
+
 mongoos.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -15,7 +19,7 @@ mongoos.connect(process.env.MONGO_URI, {
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
-app.use(cors());
+
 app.use(express.json());
 
 
