@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://lifproject-management.vercel.app/'
+  origin: 'https://lifproject-management.vercel.app'
 }));
 
 mongoos.connect(process.env.MONGO_URI, {
