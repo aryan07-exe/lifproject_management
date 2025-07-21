@@ -1,0 +1,87 @@
+// Fetch all projects
+
+const express = require('express');
+const router = express.Router();
+const ProjectDetails = require('../models/ProjectDetails');
+router.get('/all', async (req, res) => {
+  try {
+    const projects = await ProjectDetails.find().sort({ createdAt: -1 });
+    res.status(200).json(projects);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch projects' });
+  }
+});
+ 
+
+// Create new project
+router.post('/', async (req, res) => {
+  try {
+    // Transform deliverables to objects with key, status, deadline
+
+    const deliverableOptions = {
+      rawPhotos: { category: 'Photo' },
+      editedPhotos: { category: 'Photo' },
+      firstSetPhotos: { category: 'Photo' },
+      digitalAlbum: { category: 'Photo' },
+      standardBook: { category: 'Photo' },
+      premiumBook: { category: 'Photo' },
+      LongFilm: { category: 'Video' },
+      cineFilm: { category: 'Video' },
+      highlights: { category: 'Video' },
+      reel: { category: 'Video' },
+      teaser: { category: 'Video' },
+    };
+
+    // Demo deadlines for wedding categories, separate for Photo and Video
+    const weddingCategoryDeadlines = {
+      'Basic Wedding': { Photo: 10, Video: 20 },
+      'Intimate Wedding': { Photo: 12, Video: 22 },
+      'Signature Wedding': { Photo: 14, Video: 24 },
+      'Premium Wedding': { Photo: 16, Video: 26 },
+      'Small': { Photo: 8, Video: 18 },
+      'Micro': { Photo: 6, Video: 16 },
+      'Others': { Photo: 20, Video: 30 },
+    };
+
+    const { deliverables, primaryDate, projectType, projectCategory } = req.body;
+    const primaryDateObj = new Date(primaryDate);
+    const mappedDeliverables = Array.isArray(deliverables)
+      ? deliverables.map((key) => {
+          const opt = deliverableOptions[key] || {};
+          let days;
+          if (projectType === 'Wedding') {
+            // Use category-based demo deadlines, separate for Photo/Video
+            const catDeadlines = weddingCategoryDeadlines[projectCategory] || { Photo: 20, Video: 20 };
+            days = opt.category === 'Photo' ? catDeadlines.Photo : catDeadlines.Video;
+          } else {
+            days = opt.category === 'Photo' ? 15 : 20;
+            if (!opt.category) days = 20;
+          }
+          const deadline = new Date(primaryDateObj.getTime() + days * 24 * 60 * 60 * 1000);
+          return {
+            key,
+            status: 'pending',
+            deadline,
+          };
+        })
+      : [];
+
+    const payload = {
+      ...req.body,
+      deliverables: mappedDeliverables,
+    };
+    const project = new ProjectDetails(payload);
+    await project.save();
+    res.status(201).json(project);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get all projects
+router.get('/', async (req, res) => {
+  const projects = await ProjectDetails.find();
+  res.json(projects);
+});
+
+module.exports = router;
