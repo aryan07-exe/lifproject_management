@@ -19,7 +19,7 @@ function ViewProject() {
       setLoading(true);
       setError("");
       try {
-        const res = await axios.get("http://localhost:5000/api/projects/all", {
+        const res = await axios.get("https://lifproject-management.onrender.com/api/projects/all", {
           headers: { Authorization: localStorage.getItem("token") },
         });
         setProjects(res.data || []);
