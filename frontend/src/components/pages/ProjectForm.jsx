@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ProjectForm.css";
+import Navbar from "./Navbar.jsx";
 
 const deliverableOptions = [
 	{ key: "rawPhotos", label: "RAW Photos", icon: Camera, category: "Photo" },
@@ -151,6 +152,8 @@ function ProjectForm() {
 	}, {});
 
 	return (
+    <>
+    <Navbar/>
 		<div className="app-container">
 			<main className="main-content">
 				<div className="content-container">
@@ -356,7 +359,7 @@ function ProjectForm() {
 					</form>
 				</div>
 			</main>
-		</div>
+		</div></>
 	);
 }
 

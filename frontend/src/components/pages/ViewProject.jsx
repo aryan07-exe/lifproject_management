@@ -3,6 +3,7 @@ import axios from "axios";
 import { FileText, X, AlertCircle } from "lucide-react";
 import "../styles/ViewProject.css";
 import '../styles/ViewProject.css';
+import Navbar from "./Navbar";
 
 function ViewProject() {
   const [projects, setProjects] = useState([]);
@@ -40,6 +41,7 @@ function ViewProject() {
 
   return (
     <div className="view-projects-container">
+      <Navbar />
       <div className="page-header">
         <FileText size={28} className="page-icon" />
         <h2 className="page-title">Projects</h2>

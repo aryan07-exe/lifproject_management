@@ -1,0 +1,16 @@
+.link{
+    width: 20vw;
+    display: flex;
+    justify-content: space-between;
+ 
+    color: wheat;
+    text-decoration: none;
+}
+.navbar{
+background-color: black;
+height: 50px;
+display: flex;
+align-items: center;
+padding-left: 15px;
+text-decoration: none;
+}
