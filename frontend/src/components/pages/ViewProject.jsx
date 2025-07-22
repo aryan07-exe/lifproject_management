@@ -19,7 +19,7 @@ function ViewProject() {
       setLoading(true);
       setError("");
       try {
-        const res = await axios.get("https://lifproject-management.onrender.com/api/projects/all");
+        const res = await axios.get(" https://lifproject-management.onrender.com/api/projects/all");
         setProjects(res.data || []);
       } catch (err) {
         setError("Failed to fetch projects.");
