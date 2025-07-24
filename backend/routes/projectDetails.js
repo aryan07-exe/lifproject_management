@@ -1,3 +1,5 @@
+// Delete by projectName
+
 // Fetch all projects
 
 const express = require('express');
@@ -14,6 +16,22 @@ router.get('/all', async (req, res) => {
 });
  
 
+router.delete('/by-name/:projectName', async (req, res) => {
+  try {
+    const { projectName } = req.params;
+    const decodedName = decodeURIComponent(projectName).trim();
+    const deletedProject = await ProjectDetails.findOneAndDelete({
+      projectName: { $regex: new RegExp('^' + decodedName + '$', 'i') }
+    });
+    if (!deletedProject) {
+      return res.status(404).json({ error: 'Project Not Found' });
+    }
+    res.json({ message: 'Project Deleted' });
+  } catch (er) {
+    console.error(er);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
 // Create new project
 router.post('/', async (req, res) => {
   try {
@@ -103,12 +121,12 @@ router.put('/:id', async (req, res) => {
 });
 
 // GET /api/projects/search?name=projectName
+
 router.get('/search', async (req, res) => {
   try {
     const { name } = req.query;
     const regex = new RegExp(name, 'i'); // 'i' for case-insensitive search
-
-    const projects = await Project.find({ projectName: regex });
+    const projects = await ProjectDetails.find({ projectName: regex });
     res.json(projects);
   } catch (err) {
     console.error(err);
@@ -116,4 +134,18 @@ router.get('/search', async (req, res) => {
   }
 });
 
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedProject = await ProjectDetails.findByIdAndDelete(id);
+    if (!deletedProject) {
+      return res.status(404).json({ error: 'Project Not Found' });
+    }
+    res.json({ message: 'Project Deleted' });
+  } catch (er) {
+    console.error(er);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
 module.exports = router;

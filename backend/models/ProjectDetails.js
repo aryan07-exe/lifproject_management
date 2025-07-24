@@ -19,7 +19,7 @@ const DayRequirementSchema = new mongoose.Schema({
 
 const DeliverableSchema = new mongoose.Schema({
   key: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'complete'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'complete', 'client review','closed'], default: 'pending' },
   deadline: { type: Date, required: true },
 });
 
