@@ -62,8 +62,13 @@ function ManageProject() {
   const [searchInvoice, setSearchInvoice] = useState("");
   const [searchDate, setSearchDate] = useState("");
 
-  // Filtered projects based on search
-  const filteredProjects = projects.filter((proj) => {
+  // Sort projects by newest primaryDate first, then filter
+  const sortedProjects = [...projects].sort((a, b) => {
+    const dateA = a.primaryDate ? new Date(a.primaryDate) : new Date(0);
+    const dateB = b.primaryDate ? new Date(b.primaryDate) : new Date(0);
+    return dateB - dateA;
+  });
+  const filteredProjects = sortedProjects.filter((proj) => {
     const nameMatch = proj.projectName?.toLowerCase().includes(searchName.toLowerCase());
     const invoiceMatch = proj.invoiceName?.toLowerCase().includes(searchInvoice.toLowerCase());
     const dateMatch = searchDate ? (proj.primaryDate && proj.primaryDate.slice(0,10) === searchDate) : true;
