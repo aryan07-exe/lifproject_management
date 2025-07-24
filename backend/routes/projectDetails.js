@@ -101,4 +101,19 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 });
+
+// GET /api/projects/search?name=projectName
+router.get('/search', async (req, res) => {
+  try {
+    const { name } = req.query;
+    const regex = new RegExp(name, 'i'); // 'i' for case-insensitive search
+
+    const projects = await Project.find({ projectName: regex });
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
