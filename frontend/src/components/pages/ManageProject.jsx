@@ -7,6 +7,14 @@ import Navbar from './Navbar.jsx';
 
 
 
+  // Format date as d-m-y
+  function formatDMY(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '-';
+    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+  }
+
 function ManageProject() {
   const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -49,6 +57,18 @@ function ManageProject() {
     updated[index][key] = value;
     setSelected((prev) => ({ ...prev, deliverables: updated }));
   };
+    // Search filter states
+  const [searchName, setSearchName] = useState("");
+  const [searchInvoice, setSearchInvoice] = useState("");
+  const [searchDate, setSearchDate] = useState("");
+
+  // Filtered projects based on search
+  const filteredProjects = projects.filter((proj) => {
+    const nameMatch = proj.projectName?.toLowerCase().includes(searchName.toLowerCase());
+    const invoiceMatch = proj.invoiceName?.toLowerCase().includes(searchInvoice.toLowerCase());
+    const dateMatch = searchDate ? (proj.primaryDate && proj.primaryDate.slice(0,10) === searchDate) : true;
+    return nameMatch && invoiceMatch && dateMatch;
+  });
 
   // Handle project deletion
   const handleDelete = async (projectName) => {
@@ -159,6 +179,7 @@ function ManageProject() {
                           <option value="complete">Complete</option>
                           <option value="client review">Client Review</option>
                           <option value="closed">Closed</option>
+                          
                         </select>
                       </div>
                       <div className="manage-field-col">
@@ -184,6 +205,35 @@ function ManageProject() {
     <Navbar />
     <div className="manage-container">
       <h2 className="manage-title">Manage Projects</h2>
+      {/* Search Filters */}
+      <div className="manage-filters" style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:18,alignItems:'center',paddingLeft:'2vw'}}>
+        <input
+          type="text"
+          className="manage-filter-input"
+          placeholder="Search by Project Name"
+          value={searchName}
+          onChange={e => setSearchName(e.target.value)}
+          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
+        />
+        <input
+          type="text"
+          className="manage-filter-input"
+          placeholder="Search by Invoice Name"
+          value={searchInvoice}
+          onChange={e => setSearchInvoice(e.target.value)}
+          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
+        />
+        <input
+          type="date"
+          className="manage-filter-input"
+          value={searchDate}
+          onChange={e => setSearchDate(e.target.value)}
+          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
+        />
+        {(searchName || searchInvoice || searchDate) && (
+          <button onClick={()=>{setSearchName("");setSearchInvoice("");setSearchDate("");}} style={{padding:'8px 16px',border:'none',background:'#8B1C2B',color:'#fff',borderRadius:6,cursor:'pointer'}}>Clear</button>
+        )}
+      </div>
       <div className="manage-table-wrapper">
         <table className="manage-table">
           <thead>
@@ -196,12 +246,12 @@ function ManageProject() {
             </tr>
           </thead>
           <tbody>
-            {projects.map((proj) => (
+            {filteredProjects.map((proj) => (
               <tr key={proj.projectName + '-' + proj.invoiceName} className="project-row">
                 <td>{proj.projectName}</td>
                 <td>{proj.invoiceName}</td>
                 <td>{proj.projectType}</td>
-                <td>{proj.primaryDate ? new Date(proj.primaryDate).toLocaleDateString() : "-"}</td>
+                <td>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
                 <td style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                   <button className="manage-edit-btn" onClick={() => setSelected(proj)} style={{marginRight: 4}}>Edit</button>
                   <button className="manage-delete-btn" onClick={() => handleDelete(proj.projectName)} style={{background:'#fff',color:'#8B1C2B',border:'1px solid #8B1C2B',borderRadius:6,padding:'6px 14px',cursor:'pointer'}}>Delete</button>
