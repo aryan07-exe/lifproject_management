@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const ProjectDetails = require('../models/ProjectDetails');
+
 router.get('/all', async (req, res) => {
   try {
     const projects = await ProjectDetails.find().sort({ createdAt: -1 });
@@ -84,4 +85,20 @@ router.get('/', async (req, res) => {
   res.json(projects);
 });
 
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedProject = await ProjectDetails.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(updatedProject);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
 module.exports = router;

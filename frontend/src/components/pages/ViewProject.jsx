@@ -1,191 +1,169 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { FileText, X, AlertCircle } from "lucide-react";
-import "../styles/ViewProject.css";
-import '../styles/ViewProject.css';
-import Navbar from "./Navbar";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
-function ViewProject() {
-  const [projects, setProjects] = useState([]);
-  const [selected, setSelected] = useState(null);
+function EditProject() {
+  const { id } = useParams(); // project _id from route like /edit/:id
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  // Search filter states
-  const [searchName, setSearchName] = useState("");
-  const [searchDate, setSearchDate] = useState("");
-  const [searchInvoice, setSearchInvoice] = useState("");
+
+  // Fetch project by ID
+  const fetchProject = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await axios.get(`https://lifproject-management.onrender.com/api/projects/${id}`);
+      setFormData(res.data);
+    } catch (err) {
+      setError("Failed to fetch project.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchProjects() {
-      setLoading(true);
-      setError("");
-      try {
-        const res = await axios.get(" https://lifproject-management.onrender.com/api/projects/all");
-        setProjects(res.data || []);
-      } catch (err) {
-        setError("Failed to fetch projects.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProjects();
-  }, []);
+    fetchProject();
+  }, [id]);
 
-  // Filtered projects based on search
-  const filteredProjects = projects.filter((proj) => {
-    const nameMatch = proj.projectName?.toLowerCase().includes(searchName.toLowerCase());
-    const invoiceMatch = proj.invoiceName?.toLowerCase().includes(searchInvoice.toLowerCase());
-    const dateMatch = searchDate ? (proj.primaryDate && proj.primaryDate.slice(0,10) === searchDate) : true;
-    return nameMatch && invoiceMatch && dateMatch;
-  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDayChange = (index, key, value) => {
+    const updated = [...formData.dayWiseRequirements];
+    updated[index][key] = value;
+    setFormData((prev) => ({ ...prev, dayWiseRequirements: updated }));
+  };
+
+  const handleDeliverableChange = (index, key, value) => {
+    const updated = [...formData.deliverables];
+    updated[index][key] = value;
+    setFormData((prev) => ({ ...prev, deliverables: updated }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await axios.put(`https://lifproject-management.onrender.com/api/projects/${id}`, formData);
+      alert("Project updated successfully!");
+      navigate("/");
+    } catch (err) {
+      setError("Failed to update project.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: "2rem" }}>Loading...</div>;
+  if (error) return <div style={{ color: "red", padding: "2rem" }}>{error}</div>;
+  if (!formData) return null;
 
   return (
-    <div className="view-projects-container">
-      <Navbar />
-      <div className="page-header">
-        <FileText size={28} className="page-icon" />
-        <h2 className="page-title">Projects</h2>
-      </div>
-      {/* Search Filters */}
-      <div className="project-filters" style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:18,alignItems:'center'}}>
+    <div style={{ padding: "2rem" }}>
+      <h2>Edit Project: {formData.projectName}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Project Name:</label><br />
         <input
           type="text"
-          className="filter-input"
-          placeholder="Search by Project Name"
-          value={searchName}
-          onChange={e => setSearchName(e.target.value)}
-          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
-        />
+          name="projectName"
+          value={formData.projectName}
+          onChange={handleChange}
+        /><br /><br />
+
+        <label>Project Type:</label><br />
         <input
           type="text"
-          className="filter-input"
-          placeholder="Search by Invoice Name"
-          value={searchInvoice}
-          onChange={e => setSearchInvoice(e.target.value)}
-          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
-        />
+          name="projectType"
+          value={formData.projectType}
+          onChange={handleChange}
+        /><br /><br />
+
+        <label>Invoice Name:</label><br />
+        <input
+          type="text"
+          name="invoiceName"
+          value={formData.invoiceName}
+          onChange={handleChange}
+        /><br /><br />
+
+        <label>Primary Date:</label><br />
         <input
           type="date"
-          className="filter-input"
-          value={searchDate}
-          onChange={e => setSearchDate(e.target.value)}
-          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
-        />
-        {(searchName || searchInvoice || searchDate) && (
-          <button onClick={()=>{setSearchName("");setSearchInvoice("");setSearchDate("");}} style={{padding:'8px 16px',border:'none',background:'#8B1C2B',color:'#fff',borderRadius:6,cursor:'pointer'}}>Clear</button>
-        )}
-      </div>
-      {error && (
-        <div className="alert alert-error">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-        </div>
-      )}
-      <div className="projects-table-wrapper">
-        <table className="projects-table">
-          <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Invoice Name</th>
-              <th>Project Type</th>
-              <th>Category</th>
-              <th>Primary Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={5}>Loading...</td></tr>
-            ) : filteredProjects.length === 0 ? (
-              <tr><td colSpan={5}>No projects found.</td></tr>
-            ) : (
-              filteredProjects.map((proj) => (
-                <tr key={proj._id} className="project-row" onClick={() => setSelected(proj)} style={{ cursor: "pointer" }}>
-                  <td>{proj.projectName}</td>
-                  <td>{proj.invoiceName}</td>
-                  <td>{proj.projectType}</td>
-                  <td>{proj.projectType === "Wedding" ? proj.projectCategory : "-"}</td>
-                  <td>{proj.primaryDate ? new Date(proj.primaryDate).toLocaleDateString() : "-"}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      {/* Modal for project details */}
-      {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelected(null)}><X size={22} /></button>
-            <h3 className="modal-title">Project Details</h3>
-            <div className="modal-section">
-              <strong>Project Name:</strong> {selected.projectName}<br/>
-              <strong>Invoice Name:</strong> {selected.invoiceName}<br/>
-              <strong>Project Type:</strong> {selected.projectType}<br/>
-              {selected.projectType === "Wedding" && (
-                <><strong>Project Category:</strong> {selected.projectCategory}<br/></>
-              )}
-              <strong>Primary Date:</strong> {selected.primaryDate ? new Date(selected.primaryDate).toLocaleDateString() : "-"}<br/>
-            </div>
-            <div className="modal-section">
-              <strong>Day-wise Requirements:</strong>
-              <ul>
-                {selected.dayWiseRequirements && selected.dayWiseRequirements.map((day, idx) => (
-                  <li key={idx}>
-                    <strong>Date:</strong> {day.date ? new Date(day.date).toLocaleDateString() : "-"}, <strong>Time Shift:</strong> {day.timeShift}<br/>
-                    <span style={{fontSize:'0.95em'}}>
-                      Crew: Traditional Photographer: {day.traditionalPhotographers}, Traditional Cinematographer: {day.traditionalCinematographers}, Candid Photographer: {day.candidPhotographers}, Candid Cinematographer: {day.candidcinematographers}, Aerial Cinematography: {day.aerialCinematography}, Additional Cinematographers: {day.additionalCinematographers}, Additional Photographers: {day.additionalPhotographers}, Assistant: {day.assistant}, On-Site Editor: {day.onSiteEditor}
-                    </span>
-                    {day.additionalNotes && (<div><strong>Notes:</strong> {day.additionalNotes}</div>)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="modal-section">
-              <strong>Deliverables:</strong>
-              <ul>
-                {selected.deliverables && selected.deliverables.length > 0 ? (
-                  selected.deliverables.map((d, idx) => {
-                    let label = "";
-                    let status = "Pending";
-                    let deadline = "-";
-                    // Show all deliverables, including Photo and Video
-                    if (typeof d === "object" && d !== null) {
-                      label = d.key || d.label || "Deliverable";
-                      status = d.status || "Pending";
-                      deadline = d.deadline ? new Date(d.deadline).toLocaleDateString() : "-";
-                    } else if (typeof d === "string") {
-                      label = d.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
-                    }
-                    return (
-                      <li key={idx}>
-                        <strong>{label}</strong> &mdash; Status: <span style={{color: status === 'pending' ? '#c53030' : '#2d3748'}}>{status}</span>, Deadline: <span style={{color:'#374151'}}>{deadline}</span>
-                      </li>
-                    );
-                  })
-                ) : (
-                  <li>No deliverables found.</li>
-                )}
-              </ul>
-              {selected.reelCount > 0 && <div>Reel Count: {selected.reelCount}</div>}
-              {selected.standardBookCount > 0 && <div>Standard Book Count: {selected.standardBookCount}</div>}
-              {selected.premiumBookCount > 0 && <div>Premium Book Count: {selected.premiumBookCount}</div>}
-            </div>
-            <div className="modal-section">
-              <strong>Other Details:</strong>
-              <ul>
-                {Object.entries(selected).map(([key, value]) => {
-                  if (["projectName","invoiceName","projectType","projectCategory","primaryDate","dayWiseRequirements","deliverables","reelCount","standardBookCount","premiumBookCount","_id","__v"].includes(key)) return null;
-                  return (
-                    <li key={key}><strong>{key}:</strong> {String(value)}</li>
-                  );
-                })}
-              </ul>
-            </div>
+          name="primaryDate"
+          value={formData.primaryDate?.slice(0, 10)}
+          onChange={handleChange}
+        /><br /><br />
+
+        <h3>Day-Wise Requirements</h3>
+        {formData.dayWiseRequirements.map((day, index) => (
+          <div key={index} style={{ border: "1px solid gray", padding: "1rem", marginBottom: "1rem" }}>
+            <label>Date:</label><br />
+            <input
+              type="date"
+              value={day.date?.slice(0, 10)}
+              onChange={(e) => handleDayChange(index, "date", e.target.value)}
+            /><br />
+
+            <label>Time Shift:</label><br />
+            <select
+              value={day.timeShift}
+              onChange={(e) => handleDayChange(index, "timeShift", e.target.value)}
+            >
+              <option value="Half Day Morning">Half Day Morning</option>
+              <option value="Half Day Evening">Half Day Evening</option>
+              <option value="Full Day">Full Day</option>
+            </select><br />
+
+            <label>Traditional Photographers:</label>
+            <input
+              type="number"
+              value={day.traditionalPhotographers}
+              onChange={(e) => handleDayChange(index, "traditionalPhotographers", e.target.value)}
+            /><br />
+
+            <label>Assistant:</label>
+            <input
+              type="number"
+              value={day.assistant}
+              onChange={(e) => handleDayChange(index, "assistant", e.target.value)}
+            /><br />
           </div>
-        </div>
-      )}
+        ))}
+
+        <h3>Deliverables</h3>
+        {formData.deliverables.map((item, index) => (
+          <div key={index} style={{ marginBottom: "1rem" }}>
+            <label>Key:</label>
+            <input type="text" value={item.key} readOnly />
+            <label>Status:</label>
+            <select
+              value={item.status}
+              onChange={(e) => handleDeliverableChange(index, "status", e.target.value)}
+            >
+              <option value="pending">Pending</option>
+              <option value="complete">Complete</option>
+            </select>
+            <label>Deadline:</label>
+            <input
+              type="date"
+              value={item.deadline?.slice(0, 10)}
+              onChange={(e) => handleDeliverableChange(index, "deadline", e.target.value)}
+            />
+          </div>
+        ))}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Updating..." : "Update Project"}
+        </button>
+      </form>
     </div>
   );
 }
 
-export default ViewProject;
+export default EditProject;

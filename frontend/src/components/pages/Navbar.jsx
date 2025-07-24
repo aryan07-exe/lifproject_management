@@ -44,7 +44,8 @@ const Navbar = ({ onLogout }) => {
   return (
     <nav className="navbar">
         <div class="link">
-      <a onClick={() => navigate('/view-projects')}>View Projects</a>
+    
+       <a onClick={() => navigate('/manage-projects')}>Manage Projects</a>
       <a onClick={() => navigate('/')}>Create Project</a>
    </div> </nav>
   );
