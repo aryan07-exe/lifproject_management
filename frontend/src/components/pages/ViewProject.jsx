@@ -106,15 +106,16 @@ function EditProject() {
             <label>Date:</label><br />
             <input
               type="date"
-              value={day.date?.slice(0, 10)}
+              value={day.date?.slice(0, 10) || ""}
               onChange={(e) => handleDayChange(index, "date", e.target.value)}
             /><br />
 
             <label>Time Shift:</label><br />
             <select
-              value={day.timeShift}
+              value={day.timeShift || ""}
               onChange={(e) => handleDayChange(index, "timeShift", e.target.value)}
             >
+              <option value="">Select Time Shift</option>
               <option value="Half Day Morning">Half Day Morning</option>
               <option value="Half Day Evening">Half Day Evening</option>
               <option value="Full Day">Full Day</option>
@@ -123,16 +124,73 @@ function EditProject() {
             <label>Traditional Photographers:</label>
             <input
               type="number"
-              value={day.traditionalPhotographers}
+              value={day.traditionalPhotographers || 0}
               onChange={(e) => handleDayChange(index, "traditionalPhotographers", e.target.value)}
+            /><br />
+
+            <label>Traditional Cinematographers:</label>
+            <input
+              type="number"
+              value={day.traditionalCinematographers || 0}
+              onChange={(e) => handleDayChange(index, "traditionalCinematographers", e.target.value)}
+            /><br />
+
+            <label>Candid Photographers:</label>
+            <input
+              type="number"
+              value={day.candidPhotographers || 0}
+              onChange={(e) => handleDayChange(index, "candidPhotographers", e.target.value)}
+            /><br />
+
+            <label>Candid Cinematographers:</label>
+            <input
+              type="number"
+              value={day.candidcinematographers || 0}
+              onChange={(e) => handleDayChange(index, "candidcinematographers", e.target.value)}
+            /><br />
+
+            <label>Additional Cinematographers:</label>
+            <input
+              type="number"
+              value={day.additionalCinematographers || 0}
+              onChange={(e) => handleDayChange(index, "additionalCinematographers", e.target.value)}
+            /><br />
+
+            <label>Additional Photographers:</label>
+            <input
+              type="number"
+              value={day.additionalPhotographers || 0}
+              onChange={(e) => handleDayChange(index, "additionalPhotographers", e.target.value)}
+            /><br />
+
+            <label>OnSite Editor:</label>
+            <input
+              type="number"
+              value={day.onSiteEditor || 0}
+              onChange={(e) => handleDayChange(index, "onSiteEditor", e.target.value)}
             /><br />
 
             <label>Assistant:</label>
             <input
               type="number"
-              value={day.assistant}
+              value={day.assistant || 0}
               onChange={(e) => handleDayChange(index, "assistant", e.target.value)}
             /><br />
+
+            <label>Aerial Cinematography:</label>
+            <input
+              type="number"
+              value={day.aerialCinematography || 0}
+              onChange={(e) => handleDayChange(index, "aerialCinematography", e.target.value)}
+            /><br />
+
+            <label>Additional Notes:</label><br />
+            <textarea
+              value={day.additionalNotes || ""}
+              onChange={(e) => handleDayChange(index, "additionalNotes", e.target.value)}
+              rows={2}
+              style={{ width: "100%" }}
+            />
           </div>
         ))}
 
