@@ -18,6 +18,7 @@ import Navbar from './Navbar.jsx';
 function ManageProject() {
   const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [viewProject, setViewProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editLoading, setEditLoading] = useState(false);
@@ -105,8 +106,194 @@ function ManageProject() {
     }
   };
 
+  // View popup component
+  const ViewProjectModal = ({ project, onClose }) => (
+    <div className="manage-modal-overlay" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
+      <div className="manage-modal-content" style={{
+        maxWidth: '900px',
+        width: '90%',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        backgroundColor: '#fff',
+        borderRadius: '15px',
+        padding: '30px',
+        position: 'relative',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+      }}>
+        <button 
+          type="button" 
+          className="manage-modal-close" 
+          onClick={onClose} 
+          title="Close"
+          style={{
+            position: 'absolute',
+            right: '20px',
+            top: '20px',
+            background: '#8B1C2B',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            fontSize: '20px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >&times;</button>
+        
+        <div className="manage-view-form">
+          <h2 className="manage-title" style={{
+            marginBottom: 30,
+            fontSize: '24px',
+            borderBottom: '2px solid #8B1C2B',
+            paddingBottom: '15px'
+          }}>
+            Project Details: <span style={{color:'#8B1C2B'}}>{project.projectName}</span>
+          </h2>
+          
+          <div className="manage-edit-section" style={{
+            background:'#fff',
+            borderRadius: 12,
+            padding:'25px',
+            marginBottom: 30,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+            border: '1px solid #f0f0f0'
+          }}>
+            <h3 className="manage-section-header" style={{
+              color: '#8B1C2B',
+              marginBottom: '20px',
+              fontSize: '18px',
+              fontWeight: '600'
+            }}>Basic Information</h3>
+            <div className="manage-view-row" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '20px'
+            }}>
+              {[
+                { label: 'Project Name', value: project.projectName },
+                { label: 'Project Type', value: project.projectType },
+                { label: 'Invoice Name', value: project.invoiceName },
+                { label: 'Primary Date', value: formatDMY(project.primaryDate) }
+              ].map((item, i) => (
+                <div key={i} className="manage-view-col" style={{background: '#fbeaec', padding: '15px', borderRadius: '8px'}}>
+                  <label style={{color: '#666', fontSize: '14px', marginBottom: '5px', display: 'block'}}>{item.label}:</label>
+                  <div style={{fontSize: '16px', fontWeight: '500'}}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="manage-edit-section" style={{
+            background:'#fff',
+            borderRadius: 12,
+            padding:'25px',
+            marginBottom: 30,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+            border: '1px solid #f0f0f0'
+          }}>
+            <h3 className="manage-section-header" style={{
+              color: '#8B1C2B',
+              marginBottom: '20px',
+              fontSize: '18px',
+              fontWeight: '600'
+            }}>Day-Wise Requirements</h3>
+            <div style={{display: 'grid', gap: '20px'}}>
+              {project.dayWiseRequirements.map((day, index) => (
+                <div key={index} className="manage-view-day" style={{
+                  background: '#fff6f6',
+                  borderRadius: '10px',
+                  padding: '20px',
+                  border: '1px solid #ffe6e6'
+                }}>
+                  <div className="manage-view-row" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '15px'
+                  }}>
+                    {[
+                      { label: 'Date', value: formatDMY(day.date) },
+                      { label: 'Time Shift', value: day.timeShift },
+                      { label: 'Traditional Photographers', value: day.traditionalPhotographers },
+                      { label: 'Assistant', value: day.assistant }
+                    ].map((item, i) => (
+                      <div key={i} style={{background: '#fff', padding: '12px', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'}}>
+                        <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>{item.label}:</label>
+                        <div style={{fontSize: '15px', fontWeight: '500'}}>{item.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="manage-edit-section" style={{
+            background:'#fff',
+            borderRadius: 12,
+            padding:'25px',
+            marginBottom: 30,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+            border: '1px solid #f0f0f0'
+          }}>
+            <h3 className="manage-section-header" style={{
+              color: '#8B1C2B',
+              marginBottom: '20px',
+              fontSize: '18px',
+              fontWeight: '600'
+            }}>Deliverables</h3>
+            <div style={{display: 'grid', gap: '20px'}}>
+              {project.deliverables.map((item, index) => (
+                <div key={index} className="manage-view-deliverable" style={{
+                  background: '#fbeaec',
+                  borderRadius: '10px',
+                  padding: '20px',
+                  border: '1px solid #f8d7dc'
+                }}>
+                  <div className="manage-view-row" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '15px'
+                  }}>
+                    <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                      <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Key:</label>
+                      <div style={{fontSize: '15px', fontWeight: '500'}}>{item.key}</div>
+                    </div>
+                    <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                      <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Status:</label>
+                      <div style={{
+                        fontSize: '15px',
+                        fontWeight: '500',
+                        color: item.status === 'complete' ? '#2ecc71' : 
+                               item.status === 'pending' ? '#8B1C2B' :
+                               item.status === 'client review' ? '#f39c12' : '#95a5a6',
+                        textTransform: 'capitalize'
+                      }}>
+                        {item.status}
+                      </div>
+                    </div>
+                    <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                      <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Deadline:</label>
+                      <div style={{fontSize: '15px', fontWeight: '500'}}>{formatDMY(item.deadline)}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) return <div style={{ padding: "2rem" }}>Loading...</div>;
   if (error) return <div style={{ color: "red", padding: "2rem" }}>{error}</div>;
+
+  if (viewProject) {
+    return <ViewProjectModal project={viewProject} onClose={() => setViewProject(null)} />;
+  }
 
   if (selected) {
     return (
@@ -253,10 +440,10 @@ function ManageProject() {
           <tbody>
             {filteredProjects.map((proj) => (
               <tr key={proj.projectName + '-' + proj.invoiceName} className="project-row">
-                <td>{proj.projectName}</td>
-                <td>{proj.invoiceName}</td>
-                <td>{proj.projectType}</td>
-                <td>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectName}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.invoiceName}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectType}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
                 <td style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                   <button className="manage-edit-btn" onClick={() => setSelected(proj)} style={{marginRight: 4}}>Edit</button>
                   <button className="manage-delete-btn" onClick={() => handleDelete(proj.projectName)} style={{background:'#fff',color:'#8B1C2B',border:'1px solid #8B1C2B',borderRadius:6,padding:'6px 14px',cursor:'pointer'}}>Delete</button>

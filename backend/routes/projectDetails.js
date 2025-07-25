@@ -51,15 +51,43 @@ router.post('/', async (req, res) => {
       teaser: { category: 'Video' },
     };
 
-    // Demo deadlines for wedding categories, separate for Photo and Video
-    const weddingCategoryDeadlines = {
-      'Basic Wedding': { Photo: 10, Video: 20 },
-      'Intimate Wedding': { Photo: 12, Video: 22 },
-      'Signature Wedding': { Photo: 14, Video: 24 },
-      'Premium Wedding': { Photo: 16, Video: 26 },
-      'Small': { Photo: 8, Video: 18 },
-      'Micro': { Photo: 6, Video: 16 },
-      'Others': { Photo: 20, Video: 30 },
+
+    // Default deadlines for each deliverable per project category (in days)
+    const deliverableDeadlines = {
+      'Basic Wedding': {
+        rawPhotos: 40, editedPhotos: 40, firstSetPhotos: 15, digitalAlbum: 40, standardBook: 60, premiumBook: 60,
+        LongFilm: 100, cineFilm: 100, highlights: 100, reel: 40, teaser: 40
+      },
+      'Intimate Wedding': {
+       rawPhotos: 40, editedPhotos: 40, firstSetPhotos: 15, digitalAlbum: 40, standardBook: 60, premiumBook: 60,
+        LongFilm: 100, cineFilm: 100, highlights: 100, reel: 40, teaser: 40
+      },
+      'Signature Wedding': {
+        rawPhotos: 40, editedPhotos: 40, firstSetPhotos:3, digitalAlbum: 40, standardBook: 60, premiumBook: 60,
+        LongFilm: 100, cineFilm: 100, highlights: 100, reel: 40, teaser: 40
+      },
+      'Premium Wedding': {
+        rawPhotos: 40, editedPhotos: 40, firstSetPhotos: 3, digitalAlbum: 40, standardBook: 60, premiumBook: 60,
+        LongFilm: 60, cineFilm: 80, highlights: 60, reel: 40, teaser: 3
+      },
+      'Small': {
+        rawPhotos: 3, editedPhotos: 6, firstSetPhotos: 5, digitalAlbum: 15, standardBook: 18, premiumBook: 22,
+        LongFilm: 12, cineFilm: 14, highlights: 16, reel: 18, teaser: 20
+      },
+      'Micro': {
+        rawPhotos: 2, editedPhotos: 4, firstSetPhotos: 3, digitalAlbum: 10, standardBook: 12, premiumBook: 15,
+        LongFilm: 10, cineFilm: 12, highlights: 14, reel: 16, teaser: 18
+      },
+      'Others': {
+        rawPhotos: 10, editedPhotos: 20, firstSetPhotos: 15, digitalAlbum: 40, standardBook: 45, premiumBook: 50,
+        LongFilm: 25, cineFilm: 27, highlights: 29, reel: 31, teaser: 33
+      },
+    };
+
+    // Fallbacks
+    const defaultDays = {
+      rawPhotos: 7, editedPhotos: 14, firstSetPhotos: 10, digitalAlbum: 30, standardBook: 35, premiumBook: 40,
+      LongFilm: 20, cineFilm: 22, highlights: 24, reel: 26, teaser: 28
     };
 
     const { deliverables, primaryDate, projectType, projectCategory } = req.body;
@@ -67,15 +95,9 @@ router.post('/', async (req, res) => {
     const mappedDeliverables = Array.isArray(deliverables)
       ? deliverables.map((key) => {
           const opt = deliverableOptions[key] || {};
-          let days;
-          if (projectType === 'Wedding') {
-            // Use category-based demo deadlines, separate for Photo/Video
-            const catDeadlines = weddingCategoryDeadlines[projectCategory] || { Photo: 20, Video: 20 };
-            days = opt.category === 'Photo' ? catDeadlines.Photo : catDeadlines.Video;
-          } else {
-            days = opt.category === 'Photo' ? 15 : 20;
-            if (!opt.category) days = 20;
-          }
+          // Use per-deliverable, per-category deadline if available
+          const catDeadlines = deliverableDeadlines[projectCategory] || defaultDays;
+          const days = catDeadlines[key] || defaultDays[key] || 20;
           const deadline = new Date(primaryDateObj.getTime() + days * 24 * 60 * 60 * 1000);
           return {
             key,
