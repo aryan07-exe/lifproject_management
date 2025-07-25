@@ -44,9 +44,9 @@ const Navbar = ({ onLogout }) => {
   return (
     <nav className="navbar">
         <div class="link">
-    
        <a onClick={() => navigate('/manage-projects')}>Manage Projects</a>
       <a onClick={() => navigate('/')}>Create Project</a>
+      <a href='https://liffrontend.vercel.app/admin-profile'id='dash'> Dashboard</a>
    </div> </nav>
   );
 };

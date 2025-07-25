@@ -1,16 +1,21 @@
 .link{
-    width: 20vw;
+    width: 40vw;
     display: flex;
-    justify-content: space-between;
- 
-    color: wheat;
+    justify-content: space-around;
+
+    color: white;
     text-decoration: none;
 }
 .navbar{
-background-color: black;
+background-color: #211b1b;
 height: 50px;
 display: flex;
 align-items: center;
 padding-left: 15px;
 text-decoration: none;
+}
+
+#dash{
+    text-decoration: none;
+    color: white;
 }
