@@ -6,7 +6,7 @@ const mongoos= require('mongoose');
 dotenv.config();
 
 const app = express();
-
+app.use(express.json());
 app.use(cors({
   origin: [
     'https://lifproject-management.vercel.app',
@@ -23,15 +23,12 @@ mongoos.connect(process.env.MONGO_URI, {
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
-
-app.use(express.json());
-
-
-
 // Project Details API
 const projectDetailsRouter = require('./routes/projectDetails');
 app.use('/api/projects', projectDetailsRouter);
 
+const mnapower=require('./routes/manpowerRoutes');
+app.use('/api/manpower', mnapower);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

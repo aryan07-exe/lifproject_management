@@ -1,5 +1,31 @@
 
 const mongoose = require('mongoose');
+const ManpowerAssignmentSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    enum: [
+      'traditionalPhotographer',
+      'traditionalCinematographer',
+      'candidPhotographer',
+      'candidCinematographer',
+      'additionalCinematographer',
+      'additionalPhotographer',
+      'assistant',
+      'onSiteEditor',
+      'aerialCinematography'
+    ],
+    required: true
+  },
+  eid: {
+    type: String,
+    required: true
+  },
+  slotIndex: {
+    type: Number,
+    required: true
+  }
+});
+
 
 const DayRequirementSchema = new mongoose.Schema({
   date: Date,
@@ -14,6 +40,7 @@ const DayRequirementSchema = new mongoose.Schema({
   onSiteEditor: { type: Number, default: 0 },
   aerialCinematography: { type: Number, default: 0 },
   additionalNotes: String,
+  manpower: [ManpowerAssignmentSchema]
 });
 
 
