@@ -49,7 +49,7 @@ const Navbar = ({ onLogout }) => {
       <a onClick={() => navigate('/')}>Create Project</a>
       <a onClick={() => navigate('/add')}>Add Manpower </a>
       <a onClick={() => navigate('/assign')}>Assign Manpower</a>
-
+ <a onClick={() => navigate('/view-projects')}>View Projects</a>
    </div> </nav>
   );
 };
