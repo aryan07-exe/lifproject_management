@@ -16,6 +16,19 @@ import Navbar from './Navbar.jsx';
   }
 
 function ManageProject() {
+  // Fetch all manpower for assignment dropdowns
+  const [manpowerList, setManpowerList] = useState([]);
+  useEffect(() => {
+    async function fetchManpower() {
+      try {
+        const res = await axios.get('https://lifproject-management.onrender.com/api/manpower/all');
+        setManpowerList(res.data || []);
+      } catch (err) {
+        // ignore error
+      }
+    }
+    fetchManpower();
+  }, []);
   const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState(null);
   const [viewProject, setViewProject] = useState(null);
@@ -132,8 +145,8 @@ function ManageProject() {
             background: '#8B1C2B',
             color: 'white',
             border: 'none',
-            borderRadius: '50%',
-            width: '32px',
+            borderRadius: '50%'
+            ,width: '32px',
             height: '32px',
             fontSize: '20px',
             cursor: 'pointer',
@@ -233,6 +246,21 @@ function ManageProject() {
                         <div style={{fontSize: '15px', fontWeight: '500', whiteSpace: 'pre-line'}}>{item.value || '-'}</div>
                       </div>
                     ))}
+                  </div>
+                  {/* Assigned Manpower Section */}
+                  <div style={{marginTop:'18px', background:'#fff', borderRadius:'8px', padding:'14px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)', border:'1px solid #e2e8f0'}}>
+                    <h4 style={{color:'#2b6cb0', fontWeight:500, fontSize:'16px', marginBottom:'8px'}}>Assigned Manpower</h4>
+                    {day.manpower && day.manpower.length > 0 ? (
+                      <ul style={{paddingLeft:'18px', marginBottom:0}}>
+                        {day.manpower.map((person, idx) => (
+                          <li key={idx} style={{marginBottom:'6px', color:'#2d3748', fontSize:'15px'}}>
+                            <span style={{fontWeight:500}}>Role:</span> <b>{person.role}</b> &nbsp;|&nbsp; <span style={{fontWeight:500}}>EID:</span> <b>{person.eid}</b> &nbsp;|&nbsp; <span style={{fontWeight:500}}>Slot:</span> {person.slotIndex}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p style={{color:'#888', fontStyle:'italic', fontSize:'15px'}}>No manpower assigned yet.</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -335,61 +363,95 @@ function ManageProject() {
             <div className="manage-edit-section" style={{background:'#fff6f6',borderRadius:10,padding:'18px 18px 10px 18px',marginBottom:24}}>
               <h3 className="manage-section-header">Day-Wise Requirements</h3>
               <div className="manage-day-grid">
-                {selected.dayWiseRequirements.map((day, index) => (
-                  <div key={index} className="manage-edit-day" style={{marginBottom:16,background:'#fff',borderRadius:8,padding:16,border:'1px solid #ffe6e6'}}>
+                {selected.dayWiseRequirements.map((day, dayIdx) => (
+                  <div key={dayIdx} className="manage-edit-day" style={{marginBottom:16,background:'#fff',borderRadius:8,padding:16,border:'1px solid #ffe6e6'}}>
                     <div className="manage-field-row" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))',gap:12}}>
+                      {/* ...existing day fields... */}
                       <div className="manage-field-col">
                         <label>Date:</label>
-                        <input type="date" value={day.date?.slice(0, 10) || ''} onChange={(e) => handleDayChange(index, "date", e.target.value)} />
+                        <input type="date" value={day.date?.slice(0, 10) || ''} onChange={(e) => handleDayChange(dayIdx, "date", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Time Shift:</label>
-                        <select value={day.timeShift || ''} onChange={(e) => handleDayChange(index, "timeShift", e.target.value)}>
+                        <select value={day.timeShift || ''} onChange={(e) => handleDayChange(dayIdx, "timeShift", e.target.value)}>
                           <option value="">Select Time Shift</option>
                           <option value="Half Day Morning">Half Day Morning</option>
                           <option value="Half Day Evening">Half Day Evening</option>
                           <option value="Full Day">Full Day</option>
                         </select>
                       </div>
+                      {/* ...other role fields... */}
+                      {/* Assigned Manpower Editing Section */}
+                      <div className="manage-field-col" style={{gridColumn:'1/-1', marginTop:'12px'}}>
+                        <label style={{fontWeight:'bold', color:'#2b6cb0'}}>Assigned Manpower:</label>
+                        {day.manpower && day.manpower.length > 0 ? (
+                          day.manpower.map((person, slotIdx) => (
+                            <div key={slotIdx} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                              <span style={{fontWeight:500}}>{person.role} (Slot {person.slotIndex}):</span>
+                              <select
+                                value={person.eid}
+                                onChange={e => {
+                                  // Update eid for this slot
+                                  const updatedDay = {...day};
+                                  updatedDay.manpower = [...day.manpower];
+                                  updatedDay.manpower[slotIdx] = {...person, eid: e.target.value};
+                                  const updatedDays = [...selected.dayWiseRequirements];
+                                  updatedDays[dayIdx] = updatedDay;
+                                  setSelected(prev => ({...prev, dayWiseRequirements: updatedDays}));
+                                }}
+                                style={{padding:'6px',borderRadius:6,border:'1px solid #e2e8f0'}}
+                              >
+                                <option value="">-- Select --</option>
+                                {manpowerList.map(mp => (
+                                  <option key={mp.eid} value={mp.eid}>{mp.name} ({mp.role}) - {mp.eid}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ))
+                        ) : (
+                          <span style={{color:'#888'}}>No manpower assigned yet.</span>
+                        )}
+                      </div>
+                      {/* ...other fields... */}
                       <div className="manage-field-col">
                         <label>Traditional Photographers:</label>
-                        <input type="number" value={day.traditionalPhotographers || 0} onChange={(e) => handleDayChange(index, "traditionalPhotographers", e.target.value)} />
+                        <input type="number" value={day.traditionalPhotographers || 0} onChange={(e) => handleDayChange(dayIdx, "traditionalPhotographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Traditional Cinematographers:</label>
-                        <input type="number" value={day.traditionalCinematographers || 0} onChange={(e) => handleDayChange(index, "traditionalCinematographers", e.target.value)} />
+                        <input type="number" value={day.traditionalCinematographers || 0} onChange={(e) => handleDayChange(dayIdx, "traditionalCinematographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Candid Photographers:</label>
-                        <input type="number" value={day.candidPhotographers || 0} onChange={(e) => handleDayChange(index, "candidPhotographers", e.target.value)} />
+                        <input type="number" value={day.candidPhotographers || 0} onChange={(e) => handleDayChange(dayIdx, "candidPhotographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Candid Cinematographers:</label>
-                        <input type="number" value={day.candidcinematographers || 0} onChange={(e) => handleDayChange(index, "candidcinematographers", e.target.value)} />
+                        <input type="number" value={day.candidcinematographers || 0} onChange={(e) => handleDayChange(dayIdx, "candidcinematographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Additional Cinematographers:</label>
-                        <input type="number" value={day.additionalCinematographers || 0} onChange={(e) => handleDayChange(index, "additionalCinematographers", e.target.value)} />
+                        <input type="number" value={day.additionalCinematographers || 0} onChange={(e) => handleDayChange(dayIdx, "additionalCinematographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Additional Photographers:</label>
-                        <input type="number" value={day.additionalPhotographers || 0} onChange={(e) => handleDayChange(index, "additionalPhotographers", e.target.value)} />
+                        <input type="number" value={day.additionalPhotographers || 0} onChange={(e) => handleDayChange(dayIdx, "additionalPhotographers", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>OnSite Editor:</label>
-                        <input type="number" value={day.onSiteEditor || 0} onChange={(e) => handleDayChange(index, "onSiteEditor", e.target.value)} />
+                        <input type="number" value={day.onSiteEditor || 0} onChange={(e) => handleDayChange(dayIdx, "onSiteEditor", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Assistant:</label>
-                        <input type="number" value={day.assistant || 0} onChange={(e) => handleDayChange(index, "assistant", e.target.value)} />
+                        <input type="number" value={day.assistant || 0} onChange={(e) => handleDayChange(dayIdx, "assistant", e.target.value)} />
                       </div>
                       <div className="manage-field-col">
                         <label>Aerial Cinematography:</label>
-                        <input type="number" value={day.aerialCinematography || 0} onChange={(e) => handleDayChange(index, "aerialCinematography", e.target.value)} />
+                        <input type="number" value={day.aerialCinematography || 0} onChange={(e) => handleDayChange(dayIdx, "aerialCinematography", e.target.value)} />
                       </div>
                       <div className="manage-field-col" style={{gridColumn:'1/-1'}}>
                         <label>Additional Notes:</label>
-                        <textarea value={day.additionalNotes || ''} onChange={(e) => handleDayChange(index, "additionalNotes", e.target.value)} rows={2} style={{width:'100%'}} />
+                        <textarea value={day.additionalNotes || ''} onChange={(e) => handleDayChange(dayIdx, "additionalNotes", e.target.value)} rows={2} style={{width:'100%'}} />
                       </div>
                     </div>
                   </div>
@@ -399,63 +461,26 @@ function ManageProject() {
             <div className="manage-edit-section" style={{background:'#fbeaec',borderRadius:10,padding:'18px 18px 10px 18px',marginBottom:24}}>
               <h3 className="manage-section-header">Deliverables</h3>
               <div className="manage-deliverable-grid">
-                {/* Show counts for reels, standard books, premium books if present */}
-                <div style={{display:'flex',gap:24,marginBottom:16,flexWrap:'wrap'}}>
-                  <div className="manage-field-col">
-                    <label>Reel Count:</label>
-                    <input type="number" value={selected.reelCount || 0} min={0} onChange={e => setSelected(prev => ({...prev, reelCount: Number(e.target.value)}))} />
-                  </div>
-                  <div className="manage-field-col">
-                    <label>Standard Book Count:</label>
-                    <input type="number" value={selected.standardBookCount || 0} min={0} onChange={e => setSelected(prev => ({...prev, standardBookCount: Number(e.target.value)}))} />
-                  </div>
-                  <div className="manage-field-col">
-                    <label>Premium Book Count:</label>
-                    <input type="number" value={selected.premiumBookCount || 0} min={0} onChange={e => setSelected(prev => ({...prev, premiumBookCount: Number(e.target.value)}))} />
-                  </div>
-                </div>
                 {selected.deliverables.map((item, index) => (
                   <div key={index} className="manage-edit-deliverable" style={{marginBottom:12,background:'#fff',borderRadius:8,padding:12,border:'1px solid #f8d7dc'}}>
                     <div className="manage-field-row" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))',gap:12}}>
-                      {Object.entries(item).map(([field, value]) => {
-                        if (field === '_id' || field === 'id') return null;
-                        if (field === 'key') {
-                          return (
-                            <div className="manage-field-col" key={field}>
-                              <label>Key:</label>
-                              <input type="text" value={value} readOnly />
-                            </div>
-                          );
-                        }
-                        if (field === 'status') {
-                          return (
-                            <div className="manage-field-col" key={field}>
-                              <label>Status:</label>
-                              <select value={value} onChange={(e) => handleDeliverableChange(index, "status", e.target.value)}>
-                                <option value="pending">Pending</option>
-                                <option value="complete">Complete</option>
-                                <option value="client review">Client Review</option>
-                                <option value="closed">Closed</option>
-                              </select>
-                            </div>
-                          );
-                        }
-                        if (field === 'deadline') {
-                          return (
-                            <div className="manage-field-col" key={field}>
-                              <label>Deadline:</label>
-                              <input type="date" value={value?.slice(0, 10)} onChange={(e) => handleDeliverableChange(index, "deadline", e.target.value)} />
-                            </div>
-                          );
-                        }
-                        // Render any extra fields as editable text
-                        return (
-                          <div className="manage-field-col" key={field}>
-                            <label>{field.charAt(0).toUpperCase() + field.slice(1)}:</label>
-                            <input type="text" value={value || ''} onChange={(e) => handleDeliverableChange(index, field, e.target.value)} />
-                          </div>
-                        );
-                      })}
+                      <div className="manage-field-col">
+                        <label>Key:</label>
+                        <input type="text" value={item.key} readOnly />
+                      </div>
+                      <div className="manage-field-col">
+                        <label>Status:</label>
+                        <select value={item.status} onChange={(e) => handleDeliverableChange(index, "status", e.target.value)}>
+                          <option value="pending">Pending</option>
+                          <option value="complete">Complete</option>
+                          <option value="client review">Client Review</option>
+                          <option value="closed">Closed</option>
+                        </select>
+                      </div>
+                      <div className="manage-field-col">
+                        <label>Deadline:</label>
+                        <input type="date" value={item.deadline?.slice(0, 10)} onChange={(e) => handleDeliverableChange(index, "deadline", e.target.value)} />
+                      </div>
                     </div>
                   </div>
                 ))}

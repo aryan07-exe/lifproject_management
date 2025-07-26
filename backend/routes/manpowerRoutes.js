@@ -51,4 +51,35 @@ router.post('/add', async (req, res) => {
   }
 });
 
+router.get('/assignments/:eid',async(req,res)=>{
+    const {eid}=req.params;
+    try{
+        const projects=await ProjectDetails.find({
+            "dayWiseRequirements.manpower.eid": eid
+        });
+        const assignments=[];
+        for (const project of projects) {
+      for (const day of project.dayWiseRequirements) {
+        for (const manpower of day.manpower) {
+          if (manpower.eid === eid) {
+            assignments.push({
+              projectId: project._id,
+              projectName: project.projectName,
+              projectType: project.projectType,
+              date: day.date,
+              timeShift: day.timeShift,
+              role: manpower.role,
+              slotIndex: manpower.slotIndex,
+            });
+          }
+        }
+      }
+    }res.json(assignments);
+}catch(err){
+    console.error(err);
+    res.status(500).json({ message: 'Server Error', error: err.message });
+}
+    
+});
+
 module.exports = router;
