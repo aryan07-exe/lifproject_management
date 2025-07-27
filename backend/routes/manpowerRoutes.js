@@ -10,23 +10,57 @@ const {manPowerassignments}=req.body;
 try{
     const project=await ProjectDetails.findById(projectId);
     if(!project)
-    return res.status(400).json({message:"Project not found"});
-const day= project.dayWiseRequirements.id(dayId);
-if(!day)return res.status(400).json({message:'Day not found'});
+      return res.status(400).json({message:"Project not found"});
+    const day= project.dayWiseRequirements.id(dayId);
+    if(!day) return res.status(400).json({message:'Day not found'});
 
-day.manpower=manPowerassignments;
+    // Get the date for this day
+    const assignDate = day.date;
+    // Get all eids being assigned
+    const assignedEids = manPowerassignments.map(a => a.eid);
 
-console.log("Manpower being assigned:", manPowerassignments);
+    // Find all projects (except current) with assignments for these eids on the same date
+    const conflictProjects = await ProjectDetails.find({
+      _id: { $ne: projectId },
+      'dayWiseRequirements': {
+        $elemMatch: {
+          date: assignDate,
+          'manpower.eid': { $in: assignedEids }
+        }
+      }
+    });
 
-await project.save();
-res.json({success:true, message:"Manpower assignments updated successfully"});
+    if (conflictProjects.length > 0) {
+      // Find which eids are conflicting
+      const conflictingEids = [];
+      for (const p of conflictProjects) {
+        for (const d of p.dayWiseRequirements) {
+          if (d.date && new Date(d.date).toISOString() === new Date(assignDate).toISOString()) {
+            for (const m of d.manpower) {
+              if (assignedEids.includes(m.eid)) {
+                conflictingEids.push(m.eid);
+              }
+            }
+          }
+        }
+      }
+      return res.status(400).json({
+        success: false,
+        message: `Employee(s) already assigned to another project on this date: ${[...new Set(conflictingEids)].join(', ')}`
+      });
+    }
+
+    day.manpower=manPowerassignments;
+    await project.save();
+    res.json({success:true, message:"Manpower assignments updated successfully"});
 }catch(err){
-console.error("Validation Error:", err.errors); // 🔥 shows exact field with issue
+  console.error("Validation Error:", err.errors);
   return res.status(400).json({
     success: false,
     message: "Validation failed",
-    errors: err.errors, // send this to frontend to see the real issue
-  });}
+    errors: err.errors,
+  });
+}
 });
 
 router.get('/all',async(req,res)=>{

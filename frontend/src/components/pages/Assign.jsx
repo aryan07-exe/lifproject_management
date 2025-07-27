@@ -185,8 +185,46 @@ function AssignManpowerPage() {
                         >
                           <option value="">-- Assign --</option>
                           {manpowerList.map(mp => (
-                            <option key={mp.eid} value={mp.eid}>
+                            <option key={mp.eid} value={mp.eid} disabled={(() => {
+                              // Check if this eid is already assigned on this day in any project
+                              let isAssigned = false;
+                              for (const p of projects) {
+                                for (const d of p.dayWiseRequirements || []) {
+                                  if (d.date && selectedDayId) {
+                                    const selectedDay = dayOptions.find(day => day._id === selectedDayId);
+                                    if (selectedDay && new Date(d.date).toISOString().slice(0,10) === new Date(selectedDay.date).toISOString().slice(0,10)) {
+                                      for (const m of d.manpower || []) {
+                                        if (m.eid === mp.eid) {
+                                          isAssigned = true;
+                                          break;
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                              return isAssigned;
+                            })()}>
                               {mp.name} ({mp.role}) - {mp.eid}
+                              {(() => {
+                                let isAssigned = false;
+                                for (const p of projects) {
+                                  for (const d of p.dayWiseRequirements || []) {
+                                    if (d.date && selectedDayId) {
+                                      const selectedDay = dayOptions.find(day => day._id === selectedDayId);
+                                      if (selectedDay && new Date(d.date).toISOString().slice(0,10) === new Date(selectedDay.date).toISOString().slice(0,10)) {
+                                        for (const m of d.manpower || []) {
+                                          if (m.eid === mp.eid) {
+                                            isAssigned = true;
+                                            break;
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                return isAssigned ? ' (Already assigned)' : '';
+                              })()}
                             </option>
                           ))}
                         </select>
