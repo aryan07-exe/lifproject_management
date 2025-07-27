@@ -44,12 +44,12 @@ const Navbar = ({ onLogout }) => {
   return (
     <nav className="navbar">
         <div class="link">
-      <a href='https://liffrontend.vercel.app/admin-profile'id='dash'> Dashboard</a>
-       <a onClick={() => navigate('/manage-projects')}>Manage Projects</a>
+      <a href='https://liffrontend.vercel.app/admin-profile'id='dash'> Admin Dashboard</a>
       <a onClick={() => navigate('/')}>Create Project</a>
       <a onClick={() => navigate('/add')}>Add Manpower </a>
       <a onClick={() => navigate('/assign')}>Assign Manpower</a>
- <a onClick={() => navigate('/view-projects')}>View Projects</a>
+      <a onClick={() => navigate('/manage-projects')}>Manage Projects</a>  
+      <a onClick={() => navigate('/employee')}>Employee Dashboard</a>  
    </div> </nav>
   );
 };

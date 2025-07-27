@@ -362,11 +362,10 @@ function ManageProject() {
                   <label>Project Stage:</label>
                   <select name="projectStage" value={selected.projectStage || ''} onChange={handleChange}>
                     <option value="">Select Stage</option>
-                    <option value="Planning">Planning</option>
-                    <option value="Pre-Production">Pre-Production</option>
-                    <option value="Production">Production</option>
-                    <option value="Post-Production">Post-Production</option>
-                    <option value="Completed">Completed</option>
+                    <option value="incomplete">Incomplete</option>
+                    <option value="in progress">In Progress</option>
+                    <option value="review">Review</option>
+                    <option value="completed">Completed</option>
                   </select>
                 </div>
               </div>
