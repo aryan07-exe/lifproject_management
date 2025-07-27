@@ -27,6 +27,7 @@ const Navbar = () => {
         <li><a href="/add">Add Manpower</a></li>
     <li><a href="/assign">Assign Manpower</a></li>
         <li><a href="/manage-projects">Manage Projects</a></li>
+              <li><a href="/client">Client Page</a></li>
       </ul>
     </nav>
   );

@@ -8,7 +8,8 @@ import Manage from './components/pages/ManageProject.jsx';
 import Navbar from './components/pages/Navbar.jsx';
 import AssignManpowerPage from './components/pages/Assign.jsx';
 import AddManpowerPage from './components/pages/AddManPower.jsx';
-import EmployeeDashboard  from './components/pages/EmployeeDashboard.jsx'; 
+import EmployeeDashboard  from './components/pages/EmployeeDashboard.jsx';
+import Client from './components/pages/Client.jsx'; 
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
 <Route path="/assign" element={<AssignManpowerPage />} />
 <Route path="/add" element={<AddManpowerPage />} />
 <Route path="/employee" element={<EmployeeDashboard />} />
+<Route path="/client" element={<Client />} />
       </Routes></>
     
   );
