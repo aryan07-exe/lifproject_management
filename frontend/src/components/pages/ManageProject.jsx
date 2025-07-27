@@ -72,7 +72,8 @@ function ManageProject() {
     // Search filter states
   const [searchName, setSearchName] = useState("");
   const [searchInvoice, setSearchInvoice] = useState("");
-  const [searchDate, setSearchDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Sort projects by newest primaryDate first, then filter
   const sortedProjects = [...projects].sort((a, b) => {
@@ -83,8 +84,18 @@ function ManageProject() {
   const filteredProjects = sortedProjects.filter((proj) => {
     const nameMatch = proj.projectName?.toLowerCase().includes(searchName.toLowerCase());
     const invoiceMatch = proj.invoiceName?.toLowerCase().includes(searchInvoice.toLowerCase());
-    const dateMatch = searchDate ? (proj.primaryDate && proj.primaryDate.slice(0,10) === searchDate) : true;
-    return nameMatch && invoiceMatch && dateMatch;
+    let rangeMatch = true;
+    if (startDate && endDate) {
+      const projDate = proj.primaryDate ? proj.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate >= startDate && projDate <= endDate;
+    } else if (startDate) {
+      const projDate = proj.primaryDate ? proj.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate >= startDate;
+    } else if (endDate) {
+      const projDate = proj.primaryDate ? proj.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate <= endDate;
+    }
+    return nameMatch && invoiceMatch && rangeMatch;
   });
 
   // Handle project deletion
@@ -305,7 +316,7 @@ function ManageProject() {
                         fontWeight: '500',
                         color: item.status === 'complete' ? '#2ecc71' : 
                                item.status === 'pending' ? '#8B1C2B' :
-                               item.status === 'client review' ? '#f39c12' : '#95a5a6',
+                               item.status === 'client review' ? '#f39c12' : '#000000ff',
                         textTransform: 'capitalize'
                       }}>
                         {item.status}
@@ -511,8 +522,8 @@ function ManageProject() {
     <div className="manage-container">
       <h2 className="manage-title">Manage Projects</h2>
       {/* Search Filters */}
-      <div className="manage-filters" style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:18,alignItems:'center',paddingLeft:'2vw'}}>
-        <input
+      <div className="manage-filters" style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:18,alignItems:'center',paddingLeft:'1vw'}}>
+        Project Name<input
           type="text"
           className="manage-filter-input"
           placeholder="Search by Project Name"
@@ -520,7 +531,7 @@ function ManageProject() {
           onChange={e => setSearchName(e.target.value)}
           style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
         />
-        <input
+       Invoice Name <input
           type="text"
           className="manage-filter-input"
           placeholder="Search by Invoice Name"
@@ -528,18 +539,28 @@ function ManageProject() {
           onChange={e => setSearchInvoice(e.target.value)}
           style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
         />
-        <input
+  {/* Primary date search removed */}
+       Start Date <input
           type="date"
           className="manage-filter-input"
-          value={searchDate}
-          onChange={e => setSearchDate(e.target.value)}
+          placeholder="Start Date"
+          value={startDate}
+          onChange={e => setStartDate(e.target.value)}
           style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
         />
-        {(searchName || searchInvoice || searchDate) && (
-          <button onClick={()=>{setSearchName("");setSearchInvoice("");setSearchDate("");}} style={{padding:'8px 16px',border:'none',background:'#8B1C2B',color:'#fff',borderRadius:6,cursor:'pointer'}}>Clear</button>
+        End Date<input
+          type="date"
+          className="manage-filter-input"
+          placeholder="End Date"
+          value={endDate}
+          onChange={e => setEndDate(e.target.value)}
+          style={{padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:6,minWidth:180}}
+        />
+        {(searchName || searchInvoice || startDate || endDate) && (
+          <button onClick={()=>{setSearchName("");setSearchInvoice("");setStartDate("");setEndDate("");}} style={{padding:'8px 16px',border:'none',background:'#8B1C2B',color:'#fff',borderRadius:6,cursor:'pointer'}}>Clear</button>
         )}
       </div>
-      <div className="manage-table-wrapper">
+      <div className="manage-table-wrapper ">
         <table className="manage-table">
           <thead>
             <tr>

@@ -1,57 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import '../styles/Navbar.css';
+import React, { useState } from "react";
+import "../styles/Navbar.css";
+import logo from "../images/5.png"; // Adjust the path as necessary
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-
-const Navbar = ({ onLogout }) => {
-  const [formaccess, setFormaccess] = useState(localStorage.getItem('formaccess'));
-
-  // Listen for storage changes (e.g., from other tabs/windows)
-  useEffect(() => {
-    const handleStorage = (event) => {
-      if (event.key === 'formaccess') {
-        setFormaccess(event.newValue);
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
-  // Optionally, update formaccess on focus (for same-tab changes)
-  useEffect(() => {
-    const handleFocus = () => {
-      setFormaccess(localStorage.getItem('formaccess'));
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    if (onLogout) return onLogout();
-    localStorage.removeItem('token');
-    navigate('/');
+  const toggleNavbar = () => {
+    setIsOpen(!isOpen);
   };
-
-  const handleHamburger = () => setMenuOpen((open) => !open);
-
-  // Conditionally show buttons based on formaccess from localStorage
- 
 
   return (
     <nav className="navbar">
-        <div class="link">
-      <a href='https://liffrontend.vercel.app/admin-profile'id='dash'> Admin Dashboard</a>
-      <a onClick={() => navigate('/')}>Create Project</a>
-      <a onClick={() => navigate('/add')}>Add Manpower </a>
-      <a onClick={() => navigate('/assign')}>Assign Manpower</a>
-      <a onClick={() => navigate('/manage-projects')}>Manage Projects</a>  
-      <a onClick={() => navigate('/employee')}>Employee Dashboard</a>  
-   </div> </nav>
+      <div className="navbar-left">
+        <img src={logo} alt="Logo" className="logo-img" />
+
+      </div>
+
+      <div className="hamburger" onClick={toggleNavbar}>
+        <span className="bar"></span>
+        <span className="bar"></span>
+        <span className="bar"></span>
+      </div>
+
+      <ul className={`navbar-links ${isOpen ? "active" : ""}`}>
+          <li><a href="https://liffrontend.vercel.app/">Admin Dashboard</a></li>
+        <li><a href="/">Add Project</a></li>
+        <li><a href="/add">Add Manpower</a></li>
+    <li><a href="/assign">Assign Manpower</a></li>
+        <li><a href="/manage-projects">Manage Projects</a></li>
+      </ul>
+    </nav>
   );
 };
 
 export default Navbar;
+
+
+    
+        
