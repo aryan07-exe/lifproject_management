@@ -8,7 +8,7 @@ const EmployeeAssignments = ({ eid }) => {
   useEffect(() => {
     async function fetchAssignments() {
       try {
-        const res = await axios.get(` https://lifproject-management.onrender.com/api/manpower/assignments/${eid}`);
+        const res = await axios.get(`https://lifproject-management.onrender.com/api/manpower/assignments/${eid}`);
         setAssignments(res.data);
       } catch (err) {
         console.error("Failed to load assignments", err);

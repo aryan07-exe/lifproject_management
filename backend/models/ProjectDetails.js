@@ -41,10 +41,6 @@ const DayRequirementSchema = new mongoose.Schema({
   aerialCinematography: { type: Number, default: 0 },
   additionalNotes: String,
   manpower: [ManpowerAssignmentSchema],
-  projectStage: {
-    type: String,
-    enum: ['incomplete', 'in progress', 'review', 'completed'],
-    default: 'incomplete'}
 });
 
 
@@ -66,6 +62,10 @@ const ProjectDetailsSchema = new mongoose.Schema({
   reelCount: { type: Number, default: 0 },
   standardBookCount: { type: Number, default: 0 },
   premiumBookCount: { type: Number, default: 0 },
+   projectStage: {
+    type: String,
+    enum: ['incomplete', 'in progress', 'review', 'completed'],
+    default: 'incomplete'}
 });
 
 module.exports = mongoose.model('ProjectDetails', ProjectDetailsSchema);
