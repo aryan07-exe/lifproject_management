@@ -40,7 +40,11 @@ const DayRequirementSchema = new mongoose.Schema({
   onSiteEditor: { type: Number, default: 0 },
   aerialCinematography: { type: Number, default: 0 },
   additionalNotes: String,
-  manpower: [ManpowerAssignmentSchema]
+  manpower: [ManpowerAssignmentSchema],
+  projectStage: {
+    type: String,
+    enum: ['incomplete', 'in progress', 'review', 'completed'],
+    default: 'incomplete'}
 });
 
 

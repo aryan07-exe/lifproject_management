@@ -54,8 +54,6 @@ function ManageProject() {
     }
     fetchProjects();
   }, []);
-
-
   // Handle form changes for editing
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -107,11 +105,13 @@ function ManageProject() {
     setEditError("");
     setEditSuccess("");
     try {
-      await axios.put(`https://lifproject-management.onrender.com/api/projects/${selected._id}`, selected);
+      // Ensure projectStage is included in the payload
+      const payload = { ...selected, projectStage: selected.projectStage };
+      await axios.put(`https://lifproject-management.onrender.com/api/projects/${selected._id}`, payload);
       setEditSuccess("Project updated successfully!");
       // Update the list
-      setProjects((prev) => prev.map(p => p._id === selected._id ? selected : p));
-      setTimeout(() => setEditSuccess(""), 1500);
+      setProjects((prev) => prev.map(p => p._id === selected._id ? { ...selected } : p));
+  setTimeout(() => setEditSuccess("") , 1500);
     } catch (err) {
       setEditError("Failed to update project.");
     } finally {
@@ -358,6 +358,17 @@ function ManageProject() {
                   <label>Primary Date:</label>
                   <input type="date" name="primaryDate" value={selected.primaryDate?.slice(0, 10)} onChange={handleChange} />
                 </div>
+                <div className="manage-field-col">
+                  <label>Project Stage:</label>
+                  <select name="projectStage" value={selected.projectStage || ''} onChange={handleChange}>
+                    <option value="">Select Stage</option>
+                    <option value="Planning">Planning</option>
+                    <option value="Pre-Production">Pre-Production</option>
+                    <option value="Production">Production</option>
+                    <option value="Post-Production">Post-Production</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div className="manage-edit-section" style={{background:'#fff6f6',borderRadius:10,padding:'18px 18px 10px 18px',marginBottom:24}}>
@@ -537,6 +548,7 @@ function ManageProject() {
               <th>Invoice Name</th>
               <th>Type</th>
               <th>Primary Date</th>
+              <th>Project Stage</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -547,6 +559,7 @@ function ManageProject() {
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.invoiceName}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectType}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectStage}</td>
                 <td style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                   <button className="manage-edit-btn" onClick={() => setSelected(proj)} style={{marginRight: 4}}>Edit</button>
                   <button className="manage-delete-btn" onClick={() => handleDelete(proj.projectName)} style={{background:'#fff',color:'#8B1C2B',border:'1px solid #8B1C2B',borderRadius:6,padding:'6px 14px',cursor:'pointer'}}>Delete</button>
