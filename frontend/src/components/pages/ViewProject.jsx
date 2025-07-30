@@ -29,35 +29,79 @@ const ManpowerOverview = () => {
     <div style={{ textAlign: 'center', marginTop: '60px', color: '#e53e3e', fontSize: '20px' }}>{error}</div>
   );
 
+  // Gather all unique deliverable keys across all projects
+  const allDeliverableKeys = Array.from(new Set(projects.flatMap(p => (p.deliverables || []).map(d => d.key))));
+
+  // Color maps
+  const stageColors = {
+    incomplete: '#e53e3e',
+    'in progress': '#ed8936',
+    review: '#3182ce',
+    completed: '#38a169',
+  };
+  const deliverableColors = {
+    pending: '#e53e3e',
+    complete: '#38a169',
+    'client review': '#ed8936',
+    closed: '#3182ce',
+  };
+
   return (
     <>
       <Navbar />
-      <div style={{  margin: '40px auto', padding: '32px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '32px', color: '#2d3748', fontWeight: 700 }}>Project-wise Manpower Assignments</h2>
-        {projects.map((project) => (
-          <div key={project._id} style={{ background: '#f7fafc', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: '32px', padding: '24px' }}>
-            <h3 style={{ color: '#2b6cb0', fontWeight: 600, fontSize: '22px', marginBottom: '10px' }}>📌 {project.projectName} <span style={{ color: '#4a5568', fontWeight: 400 }}>({project.projectType})</span></h3>
-            <p style={{ color: '#4a5568', marginBottom: '18px' }}>📅 Primary Date: <b>{new Date(project.primaryDate).toLocaleDateString()}</b></p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-              {project.dayWiseRequirements.map((day) => (
-                <div key={day._id} style={{ background: '#fff', borderRadius: '10px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', padding: '18px', marginBottom: '10px' }}>
-                  <h4 style={{ color: '#3182ce', fontWeight: 500, fontSize: '18px', marginBottom: '8px' }}>🗓️ {new Date(day.date).toLocaleDateString()} - {day.timeShift}</h4>
-                  {day.manpower && day.manpower.length > 0 ? (
-                    <ul style={{ paddingLeft: '18px', marginBottom: 0 }}>
-                      {day.manpower.map((person, idx) => (
-                        <li key={idx} style={{ marginBottom: '6px', color: '#2d3748', fontSize: '15px' }}>
-                          <span style={{ fontWeight: 500 }}>Role:</span> <b>{person.role}</b> &nbsp;|&nbsp; <span style={{ fontWeight: 500 }}>EID:</span> <b>{person.eid}</b> &nbsp;|&nbsp; <span style={{ fontWeight: 500 }}>Slot:</span> {person.slotIndex}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p style={{ color: '#888', fontStyle: 'italic', fontSize: '15px' }}>No manpower assigned yet.</p>
-                  )}
-                </div>
+      <div style={{ margin: '40px auto', padding: '32px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '32px', color: '#2d3748', fontWeight: 700 }}>Project Overview</h2>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f7fafc' }}>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Project Name</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Type</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Invoice Name</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Invoice #</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Mobile</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Primary Date</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Category</th>
+                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Stage</th>
+                {allDeliverableKeys.map(key => (
+                  <th key={key} style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map(project => (
+                <tr key={project._id} style={{ background: '#f7fafc', borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0', fontWeight: 600 }}>{project.projectName}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.projectType}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.invoiceName}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.invoiceNumber || '-'}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.mobileNumber || '-'}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.primaryDate ? new Date(project.primaryDate).toLocaleDateString() : '-'}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.projectCategory || '-'}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>
+                    <span style={{ background: stageColors[project.projectStage] || '#e2e8f0', color: '#fff', borderRadius: 6, padding: '2px 7px', fontWeight: 600, fontSize: 11 }}>
+                      {project.projectStage}
+                    </span>
+                  </td>
+                  {allDeliverableKeys.map(key => {
+                    const deliverable = (project.deliverables || []).find(d => d.key === key);
+                    return (
+                      <td key={key} style={{ padding: '5px 3px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                        {deliverable ? (
+                          <span style={{ background: deliverableColors[deliverable.status] || '#e2e8f0', color: '#fff', borderRadius: 6, padding: '2px 7px', fontWeight: 600, fontSize: 11 }}>
+                            {deliverable.status}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>-</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
               ))}
-            </div>
-          </div>
-        ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

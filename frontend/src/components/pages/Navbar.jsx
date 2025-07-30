@@ -22,12 +22,13 @@ const Navbar = () => {
       </div>
 
       <ul className={`navbar-links ${isOpen ? "active" : ""}`}>
-          <li><a href="https://liffrontend.vercel.app/">Admin Dashboard</a></li>
+          <li><a href="https://liffrontend.vercel.app/admin-profile">Admin Dashboard</a></li>
         <li><a href="/">Add Project</a></li>
         <li><a href="/add">Add Manpower</a></li>
     <li><a href="/assign">Assign Manpower</a></li>
         <li><a href="/manage-projects">Manage Projects</a></li>
               <li><a href="/client">Client Page</a></li>
+                      <li><a href="/view-projects">Project Chart</a></li>
       </ul>
     </nav>
   );
