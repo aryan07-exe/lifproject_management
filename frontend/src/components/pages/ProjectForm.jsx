@@ -51,6 +51,8 @@ function ProjectForm() {
 		projectName: "",
 		projectType: "",
 		invoiceName: "",
+		invoiceNumber: "",
+		mobileNumber: "",
 		primaryDate: "",
 		projectCategory: "",
 		dayWiseRequirements: [{ ...defaultDay }],
@@ -111,6 +113,8 @@ function ProjectForm() {
 				reelCount: form.reelCount || 0,
 				standardBookCount: form.standardBookCount || 0,
 				premiumBookCount: form.premiumBookCount || 0,
+				invoiceNumber: form.invoiceNumber,
+				mobileNumber: form.mobileNumber,
 			};
 			// Use correct backend endpoint for project creation
 			const response = await axios.post(" https://lifproject-management.onrender.com/api/projects/", payload, {
@@ -125,6 +129,8 @@ function ProjectForm() {
 					projectName: "",
 					projectType: "",
 					invoiceName: "",
+					invoiceNumber: "",
+					mobileNumber: "",
 					primaryDate: "",
 					projectCategory: "",
 					dayWiseRequirements: [{ ...defaultDay }],
@@ -214,6 +220,14 @@ function ProjectForm() {
 								<div className="form-field">
 									<label className="field-label">Invoice Name <span className="required">*</span></label>
 									<input className="field-input" name="invoiceName" placeholder="e.g., Wedding, Corporate Event, Portrait Session" value={form.invoiceName} onChange={handleChange} required />
+								</div>
+								<div className="form-field">
+									<label className="field-label">Invoice Number</label>
+									<input className="field-input" name="invoiceNumber" placeholder="Enter invoice number" value={form.invoiceNumber} onChange={handleChange} />
+								</div>
+								<div className="form-field">
+									<label className="field-label">Mobile Number</label>
+									<input className="field-input" name="mobileNumber" placeholder="Enter mobile number" value={form.mobileNumber} onChange={handleChange} />
 								</div>
 								<div className="form-field">
 									<label className="field-label">Primary Date <span className="required">*</span></label>

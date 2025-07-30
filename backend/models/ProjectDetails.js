@@ -54,6 +54,8 @@ const ProjectDetailsSchema = new mongoose.Schema({
   projectName: { type: String, required: true },
   projectType: { type: String, required: true }, // dropdown in frontend
   invoiceName: { type: String, required: true },
+  invoiceNumber: { type: String },
+  mobileNumber: { type: String },
   primaryDate: { type: Date, required: true },
   // timeShift removed from project-level, now in dayWiseRequirements
   projectCategory: { type: String }, // only set if projectType is 'Wedding'

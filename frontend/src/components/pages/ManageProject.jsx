@@ -196,10 +196,12 @@ function ManageProject() {
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '20px'
             }}>
-              {[
+              {[ 
                 { label: 'Project Name', value: project.projectName },
                 { label: 'Project Type', value: project.projectType },
                 { label: 'Invoice Name', value: project.invoiceName },
+                { label: 'Invoice Number', value: project.invoiceNumber },
+                { label: 'Mobile Number', value: project.mobileNumber },
                 { label: 'Primary Date', value: formatDMY(project.primaryDate) }
               ].map((item, i) => (
                 <div key={i} className="manage-view-col" style={{background: '#fbeaec', padding: '15px', borderRadius: '8px'}}>
@@ -364,6 +366,14 @@ function ManageProject() {
                 <div className="manage-field-col">
                   <label>Invoice Name:</label>
                   <input type="text" name="invoiceName" value={selected.invoiceName} onChange={handleChange} />
+                </div>
+                <div className="manage-field-col">
+                  <label>Invoice Number:</label>
+                  <input type="text" name="invoiceNumber" value={selected.invoiceNumber || ''} onChange={handleChange} />
+                </div>
+                <div className="manage-field-col">
+                  <label>Mobile Number:</label>
+                  <input type="text" name="mobileNumber" value={selected.mobileNumber || ''} onChange={handleChange} />
                 </div>
                 <div className="manage-field-col">
                   <label>Primary Date:</label>
