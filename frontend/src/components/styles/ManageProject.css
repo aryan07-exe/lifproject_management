@@ -55,8 +55,8 @@
   background: var(--manage-white);
   border-radius: 18px;
   box-shadow: 0 8px 32px rgba(139,28,43,0.18);
-  width: 98vw;
-  max-width: 1400px;
+  width: 99.8%;
+  max-width: 100%;
   min-width: 320px;
   min-height: 80vh;
   max-height: 96vh;

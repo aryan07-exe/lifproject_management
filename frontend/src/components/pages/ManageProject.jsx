@@ -134,9 +134,9 @@ function ManageProject() {
   const ViewProjectModal = ({ project, onClose }) => (
     <div className="manage-modal-overlay" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
       <div className="manage-modal-content" style={{
-        maxWidth: '900px',
-        width: '90%',
-        maxHeight: '90vh',
+        maxWidth: '100%',
+        width: '99%',
+        maxHeight: '99%',
         overflowY: 'auto',
         backgroundColor: '#fff',
         borderRadius: '15px',
@@ -574,21 +574,25 @@ function ManageProject() {
         <table className="manage-table">
           <thead>
             <tr>
+              <th>S. No.</th>
+              <th>Primary Date</th>
               <th>Project Name</th>
               <th>Invoice Name</th>
+              <th>Invoice No.</th>
               <th>Type</th>
-              <th>Primary Date</th>
               <th>Project Stage</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProjects.map((proj) => (
+            {filteredProjects.map((proj, idx) => (
               <tr key={proj.projectName + '-' + proj.invoiceName} className="project-row">
+                <td>{idx + 1}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectName}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.invoiceName}</td>
+                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.invoiceNumber}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectType}</td>
-                <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.primaryDate ? formatDMY(proj.primaryDate) : "-"}</td>
                 <td onClick={() => setViewProject(proj)} style={{cursor: 'pointer'}}>{proj.projectStage}</td>
                 <td style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                   <button className="manage-edit-btn" onClick={() => setSelected(proj)} style={{marginRight: 4}}>Edit</button>
