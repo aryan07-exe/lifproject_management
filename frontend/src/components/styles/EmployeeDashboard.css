@@ -1,0 +1,23 @@
+/* EmployeeDashboard page styles extracted from inline styles */
+.employee-dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.employee-dashboard-input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.employee-dashboard-btn {
+  border: none;
+  border-radius: 4px;
+}
+.employee-dashboard-table {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}

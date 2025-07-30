@@ -1,0 +1,92 @@
+/* Client page styles extracted from inline styles */
+.client-container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 24px 16px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.client-flex {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+  justify-content: center;
+}
+.client-input {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-width: 180px;
+}
+.client-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #8B1C2B;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.client-btn-clear {
+  background: #8B1C2B;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+.client-results {
+  width: 100%;
+  overflow-x: auto;
+}
+.client-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 15px;
+}
+.client-th, .client-td {
+  padding: 12px 8px;
+  border-bottom: 1.5px solid #f8d7dc;
+  text-align: left;
+}
+.client-table-header {
+  background: #fbeaec;
+  color: #8B1C2B;
+}
+@media (max-width: 900px) {
+  .client-container {
+    max-width: 100vw;
+    padding: 12px 2vw;
+    border-radius: 10px;
+  }
+  .client-table {
+    min-width: 600px;
+    font-size: 14px;
+  }
+  .client-th, .client-td {
+    padding: 10px 6px;
+  }
+}
+@media (max-width: 600px) {
+  .client-container {
+    max-width: 100vw;
+    padding: 6px 0.5vw;
+    border-radius: 6px;
+  }
+  .client-flex {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .client-table {
+    min-width: 400px;
+    font-size: 12px;
+  }
+  .client-th, .client-td {
+    padding: 7px 3px;
+  }
+}

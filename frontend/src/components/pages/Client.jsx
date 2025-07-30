@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
+import '../styles/Client.css';
 import axios from 'axios';
+import Navbar from './Navbar';
 
 export default function Client() {
   const [projects, setProjects] = useState([]);
-  const [searchName, setSearchName] = useState("");
-  const [searchInvoice, setSearchInvoice] = useState("");
+  const [searchInvoiceName, setSearchInvoiceName] = useState("");
+  const [searchInvoiceNumber, setSearchInvoiceNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTriggered, setSearchTriggered] = useState(false);
@@ -27,13 +29,13 @@ export default function Client() {
   }, []);
 
   // Only show results after Search button is clicked and both fields are filled
-  const allFilled = searchName && searchInvoice;
+  const allFilled = searchInvoiceName && searchInvoiceNumber;
   const filteredProjects = searchTriggered && allFilled
     ? projects.filter(p => {
         // Require exact match, case-insensitive
-        const nameMatch = p.projectName?.toLowerCase() === searchName.toLowerCase();
-        const invoiceMatch = p.invoiceName?.toLowerCase() === searchInvoice.toLowerCase();
-        return nameMatch && invoiceMatch;
+        const invoiceNameMatch = p.invoiceName?.toLowerCase() === searchInvoiceName.toLowerCase();
+        const invoiceNumberMatch = (p.invoiceNumber || '').toLowerCase() === searchInvoiceNumber.toLowerCase();
+        return invoiceNameMatch && invoiceNumberMatch;
       })
     : [];
 
@@ -45,70 +47,79 @@ export default function Client() {
   }
 
   return (
-    <div style={{ maxWidth: 900, margin: '40px auto', padding: 32, background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 24, color: '#8B1C2B', fontWeight: 700 }}>Project Search</h2>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 24, alignItems: 'center', justifyContent: 'center' }}>
-        <input
-          type="text"
-          placeholder="Project Name"
-          value={searchName}
-          onChange={e => { setSearchName(e.target.value); setSearchTriggered(false); }}
-          style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, minWidth: 180 }}
-        />
-        <input
-          type="text"
-          placeholder="Invoice Name"
-          value={searchInvoice}
-          onChange={e => { setSearchInvoice(e.target.value); setSearchTriggered(false); }}
-          style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, minWidth: 180 }}
-        />
-        <button
-          onClick={() => setSearchTriggered(true)}
-          disabled={!allFilled}
-          style={{ padding: '8px 16px', border: 'none', background: allFilled ? '#8B1C2B' : '#ccc', color: '#fff', borderRadius: 6, cursor: allFilled ? 'pointer' : 'not-allowed' }}
-        >Search</button>
-        {(searchName || searchInvoice) && (
-          <button onClick={() => { setSearchName(""); setSearchInvoice(""); setSearchTriggered(false); }} style={{ padding: '8px 16px', border: 'none', background: '#8B1C2B', color: '#fff', borderRadius: 6, cursor: 'pointer' }}>Clear</button>
-        )}
+    <> 
+      <div className="client-container">
+        <h2 className="client-title" style={{ color: '#8B1C2B', textAlign: 'center', fontWeight: 700, marginBottom: 8 }}>Client Project Search</h2>
+        <p style={{ textAlign: 'center', color: '#4a5568', marginBottom: 24, fontSize: 16 }}>Search for your project using Invoice Name and Invoice Number</p>
+        <div className="client-flex">
+          <input
+            type="text"
+            placeholder="Invoice Name"
+            value={searchInvoiceName}
+            onChange={e => { setSearchInvoiceName(e.target.value); setSearchTriggered(false); }}
+            className="client-input"
+          />
+          <input
+            type="text"
+            placeholder="Invoice Number"
+            value={searchInvoiceNumber}
+            onChange={e => { setSearchInvoiceNumber(e.target.value); setSearchTriggered(false); }}
+            className="client-input"
+          />
+          <button
+            onClick={() => setSearchTriggered(true)}
+            disabled={!allFilled}
+            className="client-btn"
+            style={{ background: allFilled ? '#8B1C2B' : '#ccc', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 600 }}
+          >Search</button>
+          {(searchInvoiceName || searchInvoiceNumber) && (
+            <button onClick={() => { setSearchInvoiceName(""); setSearchInvoiceNumber(""); setSearchTriggered(false); }} className="client-btn-clear">Clear</button>
+          )}
+        </div>
+        {loading && <p className="client-loading" style={{ color: '#3182ce', textAlign: 'center', fontWeight: 500 }}>Loading...</p>}
+        {error && <p className="client-error" style={{ color: '#e53e3e', textAlign: 'center', fontWeight: 500 }}>{error}</p>}
+    <div className="client-results">
+          {searchTriggered && allFilled ? (
+            filteredProjects.length === 0 ? (
+              <p style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>No projects found.</p>
+            ) : (
+              <>
+                <h3 style={{ color: '#8B1C2B', textAlign: 'center', marginBottom: 12, fontWeight: 600 }}>Project Results</h3>
+                <div style={{ width: '100%', overflowX: 'auto' }}>
+                  <table className="client-table">
+                    <thead>
+                      <tr className="client-table-header">
+                        <th className="client-th">Project Name</th>
+                        <th className="client-th">Type</th>
+                        <th className="client-th">Invoice Name</th>
+                        <th className="client-th">Project Stage</th>
+                        <th className="client-th">Deliverable</th>
+                        <th className="client-th">Deadline</th>
+                        <th className="client-th">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProjects.map(proj => (
+                        proj.deliverables.map((del, idx) => (
+                          <tr key={proj._id + '-' + idx} className="client-table-row">
+                            <td className="client-td">{proj.projectName}</td>
+                            <td className="client-td">{proj.projectType}</td>
+                            <td className="client-td">{proj.invoiceName}</td>
+                            <td className="client-td">{proj.projectStage || '-'}</td>
+                            <td className="client-td">{del.key}</td>
+                            <td className="client-td">{formatDMY(del.deadline)}</td>
+                            <td className="client-td" style={{ color: del.status === 'complete' ? '#2ecc71' : del.status === 'pending' ? '#8B1C2B' : del.status === 'client review' ? '#f39c12' : '#95a5a6', fontWeight: 600 }}>{del.status}</td>
+                          </tr>
+                        ))
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )
+          ) : null}
+        </div>
       </div>
-      {loading && <p style={{ color: '#3182ce', textAlign: 'center' }}>Loading...</p>}
-      {error && <p style={{ color: '#e53e3e', textAlign: 'center' }}>{error}</p>}
-      <div style={{ marginTop: 24 }}>
-        {searchTriggered && allFilled ? (
-          filteredProjects.length === 0 ? (
-            <p style={{ color: '#888', textAlign: 'center' }}>No projects found.</p>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
-              <thead>
-                <tr style={{ background: '#fbeaec', color: '#8B1C2B' }}>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Project Name</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Type</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Invoice Name</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Project Stage</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Deliverable</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Deadline</th>
-                  <th style={{ padding: '12px', borderBottom: '2px solid #f8d7dc' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProjects.map(proj => (
-                  proj.deliverables.map((del, idx) => (
-                    <tr key={proj._id + '-' + idx} style={{ borderBottom: '1px solid #f8d7dc' }}>
-                      <td style={{ padding: '10px' }}>{proj.projectName}</td>
-                      <td style={{ padding: '10px' }}>{proj.projectType}</td>
-                      <td style={{ padding: '10px' }}>{proj.invoiceName}</td>
-                      <td style={{ padding: '10px' }}>{proj.projectStage || '-'}</td>
-                      <td style={{ padding: '10px' }}>{del.key}</td>
-                      <td style={{ padding: '10px' }}>{formatDMY(del.deadline)}</td>
-                      <td style={{ padding: '10px', color: del.status === 'complete' ? '#2ecc71' : del.status === 'pending' ? '#8B1C2B' : del.status === 'client review' ? '#f39c12' : '#95a5a6' }}>{del.status}</td>
-                    </tr>
-                  ))
-                ))}
-              </tbody>
-            </table>
-          )
-        ) : null}
-      </div>
-    </div>
+    </>
   );
 }

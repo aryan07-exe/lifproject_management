@@ -141,6 +141,32 @@
   border: 1px solid #fed7d7;
 }
 
+/* Compact table and badge styles */
+.viewproject-container {
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.viewproject-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 13px;
+}
+.viewproject-th, .viewproject-td {
+  padding: 6px 4px;
+  border: 1px solid #e2e8f0;
+}
+.viewproject-badge {
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-weight: 600;
+  font-size: 11px;
+  color: #fff;
+}
+
 /* Responsive styles */
 @media (max-width: 900px) {
   .modal-content {
