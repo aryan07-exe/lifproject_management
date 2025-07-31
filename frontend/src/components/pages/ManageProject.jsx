@@ -294,6 +294,11 @@ function ManageProject() {
               fontSize: '18px',
               fontWeight: '600'
             }}>Deliverables</h3>
+            <div style={{display:'flex',gap:24,marginBottom:16,flexWrap:'wrap'}}>
+              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Reels: <span style={{color:'#8B1C2B'}}>{project.reelCount ?? 0}</span></div>
+              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Standard Books: <span style={{color:'#8B1C2B'}}>{project.standardBookCount ?? 0}</span></div>
+              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Premium Books: <span style={{color:'#8B1C2B'}}>{project.premiumBookCount ?? 0}</span></div>
+            </div>
             <div style={{display: 'grid', gap: '20px'}}>
               {project.deliverables.map((item, index) => (
                 <div key={index} className="manage-view-deliverable" style={{
@@ -491,6 +496,20 @@ function ManageProject() {
             </div>
             <div className="manage-edit-section" style={{background:'#fbeaec',borderRadius:10,padding:'18px 18px 10px 18px',marginBottom:24}}>
               <h3 className="manage-section-header">Deliverables</h3>
+              <div style={{display:'flex',gap:24,marginBottom:16,flexWrap:'wrap'}}>
+                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
+                  <label>Reels:</label>
+                  <input type="number" min="0" value={selected.reelCount ?? 0} onChange={e => setSelected(prev => ({...prev, reelCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
+                </div>
+                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
+                  <label>Standard Books:</label>
+                  <input type="number" min="0" value={selected.standardBookCount ?? 0} onChange={e => setSelected(prev => ({...prev, standardBookCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
+                </div>
+                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
+                  <label>Premium Books:</label>
+                  <input type="number" min="0" value={selected.premiumBookCount ?? 0} onChange={e => setSelected(prev => ({...prev, premiumBookCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
+                </div>
+              </div>
               <div className="manage-deliverable-grid">
                 {selected.deliverables.map((item, index) => (
                   <div key={index} className="manage-edit-deliverable" style={{marginBottom:12,background:'#fff',borderRadius:8,padding:12,border:'1px solid #f8d7dc'}}>
