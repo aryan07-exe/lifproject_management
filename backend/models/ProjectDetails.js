@@ -47,7 +47,8 @@ const DayRequirementSchema = new mongoose.Schema({
 const DeliverableSchema = new mongoose.Schema({
   key: { type: String, required: true },
   status: { type: String, enum: ['pending', 'complete', 'client review','closed'], default: 'pending' },
-  deadline: { type: Date, required: true },
+  deadline: { type: Date }, // Not required for count deliverables
+  count: { type: Number, default: 0 } // Only used for count deliverables
 });
 
 const ProjectDetailsSchema = new mongoose.Schema({
@@ -60,10 +61,7 @@ const ProjectDetailsSchema = new mongoose.Schema({
   // timeShift removed from project-level, now in dayWiseRequirements
   projectCategory: { type: String }, // only set if projectType is 'Wedding'
   dayWiseRequirements: [DayRequirementSchema],
-  deliverables: [DeliverableSchema], // store deliverable objects
-  reelCount: { type: Number, default: 0 },
-  standardBookCount: { type: Number, default: 0 },
-  premiumBookCount: { type: Number, default: 0 },
+  deliverables: [DeliverableSchema], // store deliverable objects, including counts
    projectStage: {
     type: String,
     enum: ['incomplete', 'in progress', 'review', 'completed'],

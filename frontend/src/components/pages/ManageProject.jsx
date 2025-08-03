@@ -202,7 +202,10 @@ function ManageProject() {
                 { label: 'Invoice Name', value: project.invoiceName },
                 { label: 'Invoice Number', value: project.invoiceNumber },
                 { label: 'Mobile Number', value: project.mobileNumber },
-                { label: 'Primary Date', value: formatDMY(project.primaryDate) }
+                { label: 'Primary Date', value: formatDMY(project.primaryDate) },
+                { label: 'Reel Count', value: project.reelCount },
+                { label: 'Standard Book Count', value: project.standardBookCount },
+                { label: 'Premium Book Count', value: project.premiumBookCount }
               ].map((item, i) => (
                 <div key={i} className="manage-view-col" style={{background: '#fbeaec', padding: '15px', borderRadius: '8px'}}>
                   <label style={{color: '#666', fontSize: '14px', marginBottom: '5px', display: 'block'}}>{item.label}:</label>
@@ -241,39 +244,48 @@ function ManageProject() {
                     gap: '15px'
                   }}>
                     {[
-                      { label: 'Date', value: formatDMY(day.date) },
-                      { label: 'Time Shift', value: day.timeShift },
-                      { label: 'Traditional Photographers', value: day.traditionalPhotographers },
-                      { label: 'Traditional Cinematographers', value: day.traditionalCinematographers },
-                      { label: 'Candid Photographers', value: day.candidPhotographers },
-                      { label: 'Candid Cinematographers', value: day.candidcinematographers },
-                      { label: 'Additional Cinematographers', value: day.additionalCinematographers },
-                      { label: 'Additional Photographers', value: day.additionalPhotographers },
-                      { label: 'OnSite Editor', value: day.onSiteEditor },
-                      { label: 'Assistant', value: day.assistant },
-                      { label: 'Aerial Cinematography', value: day.aerialCinematography },
-                      { label: 'Additional Notes', value: day.additionalNotes }
-                    ].map((item, i) => (
-                      <div key={i} style={{background: '#fff', padding: '12px', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'}}>
-                        <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>{item.label}:</label>
-                        <div style={{fontSize: '15px', fontWeight: '500', whiteSpace: 'pre-line'}}>{item.value || '-'}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Assigned Manpower Section */}
-                  <div style={{marginTop:'18px', background:'#fff', borderRadius:'8px', padding:'14px', boxShadow:'0 1px 3px rgba(0,0,0,0.04)', border:'1px solid #e2e8f0'}}>
-                    <h4 style={{color:'#2b6cb0', fontWeight:500, fontSize:'16px', marginBottom:'8px'}}>Assigned Manpower</h4>
-                    {day.manpower && day.manpower.length > 0 ? (
-                      <ul style={{paddingLeft:'18px', marginBottom:0}}>
-                        {day.manpower.map((person, idx) => (
-                          <li key={idx} style={{marginBottom:'6px', color:'#2d3748', fontSize:'15px'}}>
-                            <span style={{fontWeight:500}}>Role:</span> <b>{person.role}</b> &nbsp;|&nbsp; <span style={{fontWeight:500}}>EID:</span> <b>{person.eid}</b> &nbsp;|&nbsp; <span style={{fontWeight:500}}>Slot:</span> {person.slotIndex}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p style={{color:'#888', fontStyle:'italic', fontSize:'15px'}}>No manpower assigned yet.</p>
-                    )}
+                      { key: 'traditionalPhotographers', label: 'Traditional Photographers', value: day.traditionalPhotographers },
+                      { key: 'traditionalCinematographers', label: 'Traditional Cinematographers', value: day.traditionalCinematographers },
+                      { key: 'candidPhotographers', label: 'Candid Photographers', value: day.candidPhotographers },
+                      { key: 'candidcinematographers', label: 'Candid Cinematographers', value: day.candidcinematographers },
+                      { key: 'additionalCinematographers', label: 'Additional Cinematographers', value: day.additionalCinematographers },
+                      { key: 'additionalPhotographers', label: 'Additional Photographers', value: day.additionalPhotographers },
+                      { key: 'assistant', label: 'Assistant', value: day.assistant },
+                      { key: 'onSiteEditor', label: 'OnSite Editor', value: day.onSiteEditor },
+                      { key: 'aerialCinematography', label: 'Aerial Cinematography', value: day.aerialCinematography }
+                    ]
+                      .filter(item => item.value > 0)
+                      .map((item, i) => {
+                        // Find assigned employees for this role
+                        const assigned = (day.manpower || []).filter(mp => {
+                          // Normalize role names for comparison
+                          const roleMap = {
+                            traditionalPhotographers: 'traditionalPhotographer',
+                            traditionalCinematographers: 'traditionalCinematographer',
+                            candidPhotographers: 'candidPhotographer',
+                            candidcinematographers: 'candidCinematographer',
+                            additionalCinematographers: 'additionalCinematographer',
+                            additionalPhotographers: 'additionalPhotographer',
+                            assistant: 'assistant',
+                            onSiteEditor: 'onSiteEditor',
+                            aerialCinematography: 'aerialCinematography'
+                          };
+                          return mp.role === roleMap[item.key];
+                        });
+                        return (
+                          <div key={i} style={{background: '#fff', padding: '12px', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'}}>
+                            <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>{item.label}:</label>
+                            <div style={{fontSize: '15px', fontWeight: '500', whiteSpace: 'pre-line'}}>
+                              {assigned.length > 0
+                                ? assigned.map((mp, idx) => {
+                                    const emp = manpowerList.find(e => e.eid === mp.eid);
+                                    return emp ? emp.name : mp.eid;
+                                  }).join(', ')
+                                : 'No employee assigned'}
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               ))}
@@ -294,11 +306,6 @@ function ManageProject() {
               fontSize: '18px',
               fontWeight: '600'
             }}>Deliverables</h3>
-            <div style={{display:'flex',gap:24,marginBottom:16,flexWrap:'wrap'}}>
-              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Reels: <span style={{color:'#8B1C2B'}}>{project.reelCount ?? 0}</span></div>
-              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Standard Books: <span style={{color:'#8B1C2B'}}>{project.standardBookCount ?? 0}</span></div>
-              <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>Premium Books: <span style={{color:'#8B1C2B'}}>{project.premiumBookCount ?? 0}</span></div>
-            </div>
             <div style={{display: 'grid', gap: '20px'}}>
               {project.deliverables.map((item, index) => (
                 <div key={index} className="manage-view-deliverable" style={{
@@ -316,23 +323,32 @@ function ManageProject() {
                       <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Key:</label>
                       <div style={{fontSize: '15px', fontWeight: '500'}}>{item.key}</div>
                     </div>
-                    <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
-                      <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Status:</label>
-                      <div style={{
-                        fontSize: '15px',
-                        fontWeight: '500',
-                        color: item.status === 'complete' ? '#2ecc71' : 
-                               item.status === 'pending' ? '#8B1C2B' :
-                               item.status === 'client review' ? '#f39c12' : '#000000ff',
-                        textTransform: 'capitalize'
-                      }}>
-                        {item.status}
+                    {typeof item.count === 'number' ? (
+                      <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                        <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Count:</label>
+                        <div style={{fontSize: '15px', fontWeight: '500'}}>{item.count}</div>
                       </div>
-                    </div>
-                    <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
-                      <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Deadline:</label>
-                      <div style={{fontSize: '15px', fontWeight: '500'}}>{formatDMY(item.deadline)}</div>
-                    </div>
+                    ) : (
+                      <>
+                        <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                          <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Status:</label>
+                          <div style={{
+                            fontSize: '15px',
+                            fontWeight: '500',
+                            color: item.status === 'complete' ? '#2ecc71' : 
+                                   item.status === 'pending' ? '#8B1C2B' :
+                                   item.status === 'client review' ? '#f39c12' : '#000000ff',
+                            textTransform: 'capitalize'
+                          }}>
+                            {item.status}
+                          </div>
+                        </div>
+                        <div style={{background: '#fff', padding: '12px', borderRadius: '6px'}}>
+                          <label style={{color: '#666', fontSize: '13px', marginBottom: '4px', display: 'block'}}>Deadline:</label>
+                          <div style={{fontSize: '15px', fontWeight: '500'}}>{formatDMY(item.deadline)}</div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -383,6 +399,18 @@ function ManageProject() {
                 <div className="manage-field-col">
                   <label>Primary Date:</label>
                   <input type="date" name="primaryDate" value={selected.primaryDate?.slice(0, 10)} onChange={handleChange} />
+                </div>
+                <div className="manage-field-col">
+                  <label>Reel Count:</label>
+                  <input type="number" name="reelCount" value={selected.reelCount || 0} onChange={handleChange} min="0" />
+                </div>
+                <div className="manage-field-col">
+                  <label>Standard Book Count:</label>
+                  <input type="number" name="standardBookCount" value={selected.standardBookCount || 0} onChange={handleChange} min="0" />
+                </div>
+                <div className="manage-field-col">
+                  <label>Premium Book Count:</label>
+                  <input type="number" name="premiumBookCount" value={selected.premiumBookCount || 0} onChange={handleChange} min="0" />
                 </div>
                 <div className="manage-field-col">
                   <label>Project Stage:</label>
@@ -496,20 +524,6 @@ function ManageProject() {
             </div>
             <div className="manage-edit-section" style={{background:'#fbeaec',borderRadius:10,padding:'18px 18px 10px 18px',marginBottom:24}}>
               <h3 className="manage-section-header">Deliverables</h3>
-              <div style={{display:'flex',gap:24,marginBottom:16,flexWrap:'wrap'}}>
-                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
-                  <label>Reels:</label>
-                  <input type="number" min="0" value={selected.reelCount ?? 0} onChange={e => setSelected(prev => ({...prev, reelCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
-                </div>
-                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
-                  <label>Standard Books:</label>
-                  <input type="number" min="0" value={selected.standardBookCount ?? 0} onChange={e => setSelected(prev => ({...prev, standardBookCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
-                </div>
-                <div style={{background:'#fff',padding:'12px 18px',borderRadius:8,border:'1px solid #f8d7dc',fontWeight:500}}>
-                  <label>Premium Books:</label>
-                  <input type="number" min="0" value={selected.premiumBookCount ?? 0} onChange={e => setSelected(prev => ({...prev, premiumBookCount: Number(e.target.value)}))} style={{marginLeft:8,width:60}} />
-                </div>
-              </div>
               <div className="manage-deliverable-grid">
                 {selected.deliverables.map((item, index) => (
                   <div key={index} className="manage-edit-deliverable" style={{marginBottom:12,background:'#fff',borderRadius:8,padding:12,border:'1px solid #f8d7dc'}}>
