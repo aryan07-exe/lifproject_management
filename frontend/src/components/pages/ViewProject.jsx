@@ -4,6 +4,24 @@ import Navbar from './Navbar';
 
 const ManpowerOverview = () => {
   const [projects, setProjects] = useState([]);
+  const [searchName, setSearchName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // Helper to format date as MM/DD/YYYY
+  function formatMDY(dateStr) {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "-";
+    return `${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}/${d.getFullYear()}`;
+  }
+  // Helper to format date as DD-MM-YYYY
+  function formatDMY(dateStr) {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "-";
+    return `${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()}`;
+  }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -32,6 +50,23 @@ const ManpowerOverview = () => {
   // Gather all unique deliverable keys across all projects
   const allDeliverableKeys = Array.from(new Set(projects.flatMap(p => (p.deliverables || []).map(d => d.key))));
 
+  // Filter projects by name and date range
+  const filteredProjects = projects.filter(project => {
+    const nameMatch = project.projectName?.toLowerCase().includes(searchName.toLowerCase());
+    let rangeMatch = true;
+    if (startDate && endDate) {
+      const projDate = project.primaryDate ? project.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate >= startDate && projDate <= endDate;
+    } else if (startDate) {
+      const projDate = project.primaryDate ? project.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate >= startDate;
+    } else if (endDate) {
+      const projDate = project.primaryDate ? project.primaryDate.slice(0,10) : "";
+      rangeMatch = projDate <= endDate;
+    }
+    return nameMatch && rangeMatch;
+  });
+
   // Color maps
   const stageColors = {
     incomplete: '#e53e3e',
@@ -51,6 +86,33 @@ const ManpowerOverview = () => {
       <Navbar />
       <div style={{ margin: '40px auto', padding: '32px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '32px', color: '#2d3748', fontWeight: 700 }}>Project Overview</h2>
+        {/* Filters */}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 18, alignItems: 'center', paddingLeft: '1vw' }}>
+          Project Name <input
+            type="text"
+            placeholder="Search by Project Name"
+            value={searchName}
+            onChange={e => setSearchName(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, minWidth: 180 }}
+          />
+          Start Date <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, minWidth: 180 }}
+          />
+          {startDate && <span style={{fontSize:12, color:'#555'}}>({formatMDY(startDate)})</span>}
+          End Date <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, minWidth: 180 }}
+          />
+          {endDate && <span style={{fontSize:12, color:'#555'}}>({formatMDY(endDate)})</span>}
+          {(searchName || startDate || endDate) && (
+            <button onClick={() => { setSearchName(""); setStartDate(""); setEndDate(""); }} style={{ padding: '8px 16px', border: 'none', background: '#8B1C2B', color: '#fff', borderRadius: 6, cursor: 'pointer' }}>Clear</button>
+          )}
+        </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', fontSize: '13px' }}>
             <thead>
@@ -58,8 +120,6 @@ const ManpowerOverview = () => {
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Project Name</th>
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Type</th>
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Invoice Name</th>
-                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Invoice #</th>
-                <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Mobile</th>
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Primary Date</th>
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Category</th>
                 <th style={{ padding: '6px 4px', border: '1px solid #e2e8f0' }}>Stage</th>
@@ -69,14 +129,12 @@ const ManpowerOverview = () => {
               </tr>
             </thead>
             <tbody>
-              {projects.map(project => (
+              {filteredProjects.map(project => (
                 <tr key={project._id} style={{ background: '#f7fafc', borderBottom: '1px solid #e2e8f0' }}>
                   <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0', fontWeight: 600 }}>{project.projectName}</td>
                   <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.projectType}</td>
                   <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.invoiceName}</td>
-                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.invoiceNumber || '-'}</td>
-                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.mobileNumber || '-'}</td>
-                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.primaryDate ? new Date(project.primaryDate).toLocaleDateString() : '-'}</td>
+                  <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{formatDMY(project.primaryDate)}</td>
                   <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>{project.projectCategory || '-'}</td>
                   <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0' }}>
                     <span style={{ background: stageColors[project.projectStage] || '#e2e8f0', color: '#fff', borderRadius: 6, padding: '2px 7px', fontWeight: 600, fontSize: 11 }}>
