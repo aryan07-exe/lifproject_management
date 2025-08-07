@@ -1,15 +1,14 @@
-
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';    
+
 import ProjectForm from './components/pages/ProjectForm.jsx';
 import ViewProject from './components/pages/ViewProject.jsx';
 import Manage from './components/pages/ManageProject.jsx';
-import Navbar from './components/pages/Navbar.jsx';
 import AssignManpowerPage from './components/pages/Assign.jsx';
 import AddManpowerPage from './components/pages/AddManPower.jsx';
 import EmployeeDashboard  from './components/pages/EmployeeDashboard.jsx';
-import Client from './components/pages/Client.jsx'; 
+import Client from './components/pages/Client.jsx';
+import ManpowerCrud from './components/pages/ManpowerCrud.jsx';
 
 function App() {
   return (
@@ -23,8 +22,9 @@ function App() {
 <Route path="/add" element={<AddManpowerPage />} />
 <Route path="/employee" element={<EmployeeDashboard />} />
 <Route path="/client" element={<Client />} />
-      </Routes></>
-    
+<Route path="/manage-manpower" element={<ManpowerCrud />} />
+      </Routes>
+    </>
   );
 }
 

@@ -1,0 +1,156 @@
+/* Responsive and modern container */
+.manpower-crud-container {
+  background: #fff;
+  color: #6c0428;
+  min-height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+.manpower-crud-container h2 {
+  margin: 32px 0 16px 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.manpower-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  box-sizing: border-box;
+}
+.manpower-form input {
+  padding: 10px 14px;
+  border: 1px solid #6c0428;
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+  min-width: 140px;
+  flex: 1 1 160px;
+  margin-bottom: 8px;
+}
+.manpower-form button {
+  background: #6c0428;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.manpower-form button:disabled {
+  background: #ccc;
+  color: #fff;
+  cursor: not-allowed;
+}
+.manpower-form button.delete {
+  background: #fff;
+  color: #6c0428;
+  border: 1px solid #6c0428;
+}
+.manpower-table {
+  width: 95vw;
+  max-width: 900px;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 32px;
+  margin-top: 8px;
+  font-size: 1rem;
+  overflow-x: auto;
+}
+.manpower-table th, .manpower-table td {
+  border: 1px solid #6c0428;
+  padding: 8px 12px;
+  text-align: left;
+}
+.manpower-table th {
+  background: #6c0428;
+  color: #fff;
+}
+.manpower-table td button {
+  margin-right: 8px;
+  background: #fff;
+  color: #6c0428;
+  border: 1px solid #6c0428;
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+.manpower-table td button.delete {
+  background: #6c0428;
+  color: #fff;
+}
+@media (max-width: 900px) {
+  .manpower-crud-container {
+    padding: 0 2vw;
+  }
+  .manpower-table, .manpower-form {
+    width: 98vw;
+    max-width: 100vw;
+  }
+}
+
+@media (max-width: 600px) {
+  .manpower-crud-container {
+    padding: 0 1vw;
+  }
+  .manpower-form {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100vw;
+  }
+  .manpower-form input {
+    min-width: 0;
+    width: 100%;
+    font-size: 1rem;
+  }
+  .manpower-table {
+    width: 100vw;
+    font-size: 0.95rem;
+    overflow-x: auto;
+    display: block;
+  }
+  .manpower-table th, .manpower-table td {
+    padding: 6px 4px;
+    font-size: 0.95rem;
+    word-break: break-word;
+  }
+  .manpower-table thead {
+    display: none;
+  }
+  .manpower-table tr {
+    display: block;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #eee;
+  }
+  .manpower-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 6px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+  }
+  .manpower-table td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6c0428;
+    flex: 0 0 110px;
+    margin-right: 8px;
+    font-size: 0.97rem;
+  }
+}

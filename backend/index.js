@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -27,8 +28,14 @@ mongoos.connect(process.env.MONGO_URI, {
 const projectDetailsRouter = require('./routes/projectDetails');
 app.use('/api/projects', projectDetailsRouter);
 
+
+
 const mnapower=require('./routes/manpowerRoutes');
 app.use('/api/manpower', mnapower);
+
+// Manpower CRUD API
+const manpowerCrud = require('./routes/manpowerCrud');
+app.use('/api/manpower-crud', manpowerCrud);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
