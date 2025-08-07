@@ -29,7 +29,7 @@ const Navbar = () => {
         <li><a href="/manage-projects">Manage Projects</a></li>
         <li><a href="/client">Client Page</a></li>
         <li><a href="/view-projects">Project Chart</a></li>
-        <li><a href="/manpower-admin">Manpower Admin</a></li>
+        <li><a href="/manage-manpower">Manpower Admin</a></li>
       </ul>
     </nav>
   );
