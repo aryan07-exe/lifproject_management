@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import '../styles/ManpowerCrud.css';
-
+import Navbar from './Navbar';
 const API_URL = 'https://lifproject-management.onrender.com/api/manpower-crud';
 
 const initialForm = { name: '', eid: '', email: '', phone: '', role: '' };
@@ -92,6 +92,8 @@ const ManpowerCrud = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="manpower-crud-container">
       <h2>Manage Manpower</h2>
       <form className="manpower-form" onSubmit={handleSubmit} autoComplete="off">
@@ -136,7 +138,7 @@ const ManpowerCrud = () => {
         </tbody>
       </table>
       {loading && <div className="loading-message">Loading...</div>}
-    </div>
+    </div></>
   );
 };
 
