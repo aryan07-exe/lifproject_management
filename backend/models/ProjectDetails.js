@@ -13,23 +13,20 @@ const ManpowerAssignmentSchema = new mongoose.Schema({
       'assistant',
       'onSiteEditor',
       'aerialCinematography'
-    ],
-    required: true
+    ]
   },
   eid: {
-    type: String,
-    required: true
+    type: String
   },
   slotIndex: {
-    type: Number,
-    required: true
+    type: Number
   }
 });
 
 
 const DayRequirementSchema = new mongoose.Schema({
   date: Date,
-  timeShift: { type: String, enum: ['Half Day Morning', 'Half Day Evening', 'Full Day'], required: true },
+  timeShift: { type: String, enum: ['Half Day Morning', 'Half Day Evening', 'Full Day']},
   traditionalPhotographers: { type: Number, default: 0 },
   traditionalCinematographers: { type: Number, default: 0 },
   candidPhotographers: { type: Number, default: 0 },
@@ -45,27 +42,28 @@ const DayRequirementSchema = new mongoose.Schema({
 
 
 const DeliverableSchema = new mongoose.Schema({
-  key: { type: String, required: true },
+  key: { type: String },
   status: { type: String, enum: ['pending', 'complete', 'client review','closed'], default: 'pending' },
   deadline: { type: Date }, // Not required for count deliverables
   count: { type: Number, default: 0 } // Only used for count deliverables
 });
 
 const ProjectDetailsSchema = new mongoose.Schema({
-  projectName: { type: String, required: true },
-  projectType: { type: String, required: true }, // dropdown in frontend
-  invoiceName: { type: String, required: true },
+  projectName: { type: String },
+  primaryDate: { type: Date },
+  projectType: { type: String }, // dropdown in frontend
+  invoiceName: { type: String },
   invoiceNumber: { type: String },
   mobileNumber: { type: String },
-  primaryDate: { type: Date, required: true },
   // timeShift removed from project-level, now in dayWiseRequirements
   projectCategory: { type: String }, // only set if projectType is 'Wedding'
   dayWiseRequirements: [DayRequirementSchema],
   deliverables: [DeliverableSchema], // store deliverable objects, including counts
-   projectStage: {
+  projectStage: {
     type: String,
     enum: ['incomplete', 'in progress', 'review', 'completed'],
-    default: 'incomplete'}
+    default: 'incomplete'
+  }
 });
 
 module.exports = mongoose.model('ProjectDetails', ProjectDetailsSchema);

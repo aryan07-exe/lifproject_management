@@ -102,11 +102,7 @@ function ProjectForm() {
 		setMessage("");
 		setError("");
 		setLoading(true);
-		if (!form.projectName.trim() || !form.projectType.trim() || !form.primaryDate) {
-			setError("Please complete all required project information fields.");
-			setLoading(false);
-			return;
-		}
+		// No required fields; allow submission with any or no data
 		try {
 			const payload = {
 				...form,
@@ -191,35 +187,35 @@ function ProjectForm() {
 							<div className="form-grid">
 								<div className="form-field">
 									<label className="field-label">Project Name <span className="required">*</span></label>
-									<input className="field-input" name="projectName" placeholder="Enter project name" value={form.projectName} onChange={handleChange} required />
+									  <input className="field-input" name="projectName" placeholder="Enter project name" value={form.projectName} onChange={handleChange} />
 								</div>
 								<div className="form-field">
 									<label className="field-label">Project Type <span className="required">*</span></label>
-									<select className="field-input" name="projectType" value={form.projectType} onChange={handleChange} required>
+									  <select className="field-input" name="projectType" value={form.projectType} onChange={handleChange}>
 										<option value="">Select Project Type</option>
 										<option value="Wedding">Wedding</option>
 										<option value="Corporate Event">Corporate Event</option>
 										<option value="Portrait Session">Portrait Session</option>
 									</select>
 								</div>
-								{form.projectType === "Wedding" && (
-									<div className="form-field">
-										<label className="field-label">Project Category <span className="required">*</span></label>
-										<select className="field-input" name="projectCategory" value={form.projectCategory} onChange={handleChange} required>
-											<option value="">Select Category</option>
-											<option value="Basic Wedding">Basic Wedding</option>
-											<option value="Intimate Wedding">Intimate Wedding</option>
-											<option value="Signature Wedding">Signature Wedding</option>
-											<option value="Premium Wedding">Premium Wedding</option>
-											<option value="Small">Small</option>
-											<option value="Micro">Micro</option>
-											<option value="Others">Others</option>
-										</select>
-									</div>
-								)}
+												{form.projectType === "Wedding" && (
+													<div className="form-field">
+														<label className="field-label">Project Category</label>
+														<select className="field-input" name="projectCategory" value={form.projectCategory} onChange={handleChange}>
+															<option value="">Select Category</option>
+															<option value="Basic Wedding">Basic Wedding</option>
+															<option value="Intimate Wedding">Intimate Wedding</option>
+															<option value="Signature Wedding">Signature Wedding</option>
+															<option value="Premium Wedding">Premium Wedding</option>
+															<option value="Small">Small</option>
+															<option value="Micro">Micro</option>
+															<option value="Others">Others</option>
+														</select>
+													</div>
+												)}
 								<div className="form-field">
 									<label className="field-label">Invoice Name <span className="required">*</span></label>
-									<input className="field-input" name="invoiceName" placeholder="e.g., Wedding, Corporate Event, Portrait Session" value={form.invoiceName} onChange={handleChange} required />
+									  <input className="field-input" name="invoiceName" placeholder="e.g., Wedding, Corporate Event, Portrait Session" value={form.invoiceName} onChange={handleChange} />
 								</div>
 								<div className="form-field">
 									<label className="field-label">Invoice Number</label>
@@ -231,7 +227,7 @@ function ProjectForm() {
 								</div>
 								<div className="form-field">
 									<label className="field-label">Primary Date <span className="required">*</span></label>
-									<input className="field-input" name="primaryDate" type="date" value={form.primaryDate} onChange={handleChange} required />
+									  <input className="field-input" name="primaryDate" type="date" value={form.primaryDate} onChange={handleChange} />
 								</div>
 							</div>
 						</div>
@@ -246,8 +242,8 @@ function ProjectForm() {
 										<div className="day-card-header">
 											<div className="day-info">
 												<span className="day-label">Day {idx + 1}</span>
-												<input className="field-input date-input" type="date" name="date" value={day.date} onChange={(e) => handleDayChange(idx, e)} required />
-												<select className="field-input" name="timeShift" value={day.timeShift} onChange={(e) => handleDayChange(idx, e)} required style={{ marginLeft: 12 }}>
+												<input className="field-input date-input" type="date" name="date" value={day.date} onChange={(e) => handleDayChange(idx, e)} />
+												<select className="field-input" name="timeShift" value={day.timeShift} onChange={(e) => handleDayChange(idx, e)} style={{ marginLeft: 12 }}>
 													<option value="">Select Time Shift</option>
 													<option value="Half Day Morning">Half Day Morning</option>
 													<option value="Half Day Evening">Half Day Evening</option>
