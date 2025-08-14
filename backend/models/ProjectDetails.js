@@ -26,7 +26,7 @@ const ManpowerAssignmentSchema = new mongoose.Schema({
 
 const DayRequirementSchema = new mongoose.Schema({
   date: Date,
-  timeShift: { type: String, enum: ['Half Day Morning', 'Half Day Evening', 'Full Day']},
+  timeShift: { type: String },
   traditionalPhotographers: { type: Number, default: 0 },
   traditionalCinematographers: { type: Number, default: 0 },
   candidPhotographers: { type: Number, default: 0 },
