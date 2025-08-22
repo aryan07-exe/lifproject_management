@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Client.css';
 import axios from 'axios';
-import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
 
 export default function Client() {
   const [projects, setProjects] = useState([]);
-  const [searchInvoiceName, setSearchInvoiceName] = useState("");
+  const [searchPrimaryDate, setSearchPrimaryDate] = useState("");
   const [searchInvoiceNumber, setSearchInvoiceNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchTriggered, setSearchTriggered] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchProjects() {
@@ -28,98 +29,68 @@ export default function Client() {
     fetchProjects();
   }, []);
 
-  // Only show results after Search button is clicked and both fields are filled
-  const allFilled = searchInvoiceName && searchInvoiceNumber;
-  const filteredProjects = searchTriggered && allFilled
+  // Only show results after submit, not before
+  const allFilled = searchPrimaryDate && searchInvoiceNumber;
+  const filteredProjects = allFilled
     ? projects.filter(p => {
-        // Require exact match, case-insensitive
-        const invoiceNameMatch = p.invoiceName?.toLowerCase() === searchInvoiceName.toLowerCase();
+        const primaryDateMatch = p.primaryDate && p.primaryDate.slice(0,10) === searchPrimaryDate;
         const invoiceNumberMatch = (p.invoiceNumber || '').toLowerCase() === searchInvoiceNumber.toLowerCase();
-        return invoiceNameMatch && invoiceNumberMatch;
+        return primaryDateMatch && invoiceNumberMatch;
       })
     : [];
 
-  function formatDMY(dateStr) {
-    if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    if (isNaN(d)) return '-';
-    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()}`;
-  }
+  // No need for formatDMY here
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setError("");
+    if (allFilled) {
+      const project = filteredProjects[0];
+      if (project) {
+        navigate('/client-result', { state: { project } });
+      } else {
+        setError('No project found with the provided details.');
+      }
+    } else {
+      setError('Please fill both fields.');
+    }
+  };
 
   return (
-    <> 
-      <div className="client-container">
-        <h2 className="client-title" style={{ color: '#8B1C2B', textAlign: 'center', fontWeight: 700, marginBottom: 8 }}>Client Project Search</h2>
-        <p style={{ textAlign: 'center', color: '#4a5568', marginBottom: 24, fontSize: 16 }}>Search for your project using Invoice Name and Invoice Number</p>
-        <div className="client-flex">
+    <div className="client-login-outer" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #fff 60%, #f8e6e9 100%)', padding: '0 8px' }}>
+      <div className="client-login-box" style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px rgba(139,28,43,0.10)', padding: 24, margin: '0 auto' }}>
+        <h2 className="client-title" style={{ color: '#8B1C2B', textAlign: 'center', fontWeight: 800, marginBottom: 18, fontSize: 28, letterSpacing: 1 }}>Client Login</h2>
+        <form className="client-login-form" style={{ display: 'flex', flexDirection: 'column', gap: 18 }} onSubmit={handleLogin}>
+          <label style={{ fontWeight: 600, color: '#8B1C2B', marginBottom: 4, fontSize: 15 }}>Primary Date</label>
           <input
-            type="text"
-            placeholder="Invoice Name"
-            value={searchInvoiceName}
-            onChange={e => { setSearchInvoiceName(e.target.value); setSearchTriggered(false); }}
+            type="date"
+            value={searchPrimaryDate}
+            onChange={e => { setSearchPrimaryDate(e.target.value); setError(""); setSubmitted(false); }}
             className="client-input"
+            style={{ fontSize: 17, padding: 13, borderRadius: 8, border: '1.5px solid #8B1C2B', marginBottom: 10, background: '#fafbfc' }}
           />
+          <label style={{ fontWeight: 600, color: '#8B1C2B', marginBottom: 4, fontSize: 15 }}>Invoice Number</label>
           <input
             type="text"
-            placeholder="Invoice Number"
+            placeholder="Enter Invoice Number"
             value={searchInvoiceNumber}
-            onChange={e => { setSearchInvoiceNumber(e.target.value); setSearchTriggered(false); }}
+            onChange={e => { setSearchInvoiceNumber(e.target.value); setError(""); setSubmitted(false); }}
             className="client-input"
+            style={{ fontSize: 17, padding: 13, borderRadius: 8, border: '1.5px solid #8B1C2B', marginBottom: 10, background: '#fafbfc' }}
           />
           <button
-            onClick={() => setSearchTriggered(true)}
-            disabled={!allFilled}
+            type="submit"
             className="client-btn"
-            style={{ background: allFilled ? '#8B1C2B' : '#ccc', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 600 }}
-          >Search</button>
-          {(searchInvoiceName || searchInvoiceNumber) && (
-            <button onClick={() => { setSearchInvoiceName(""); setSearchInvoiceNumber(""); setSearchTriggered(false); }} className="client-btn-clear">Clear</button>
+            style={{ background: allFilled ? '#8B1C2B' : '#ccc', color: '#fff', fontWeight: 700, fontSize: 18, borderRadius: 8, padding: 13, border: 'none', marginTop: 10, boxShadow: allFilled ? '0 2px 8px #8B1C2B22' : 'none', transition: 'background 0.2s' }}
+          >Login</button>
+          {(searchPrimaryDate || searchInvoiceNumber) && (
+            <button type="button" onClick={() => { setSearchPrimaryDate(""); setSearchInvoiceNumber(""); setError(""); setSubmitted(false); }} className="client-btn-clear" style={{ fontSize: 15, marginTop: 0, color: '#8B1C2B', background: 'none', border: 'none', textDecoration: 'underline', alignSelf: 'flex-end' }}>Clear</button>
           )}
-        </div>
-        {loading && <p className="client-loading" style={{ color: '#3182ce', textAlign: 'center', fontWeight: 500 }}>Loading...</p>}
-        {error && <p className="client-error" style={{ color: '#e53e3e', textAlign: 'center', fontWeight: 500 }}>{error}</p>}
-    <div className="client-results">
-          {searchTriggered && allFilled ? (
-            filteredProjects.length === 0 ? (
-              <p style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>No projects found.</p>
-            ) : (
-              <>
-                <h3 style={{ color: '#8B1C2B', textAlign: 'center', marginBottom: 12, fontWeight: 600 }}>Project Results</h3>
-                <div style={{ width: '100%', overflowX: 'auto' }}>
-                  <table className="client-table">
-                    <thead>
-                      <tr className="client-table-header">
-                        <th className="client-th">Project Name</th>
-                        <th className="client-th">Type</th>
-                        <th className="client-th">Invoice Name</th>
-                        <th className="client-th">Project Stage</th>
-                        <th className="client-th">Deliverable</th>
-                        <th className="client-th">Deadline</th>
-                        <th className="client-th">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredProjects.map(proj => (
-                        proj.deliverables.map((del, idx) => (
-                          <tr key={proj._id + '-' + idx} className="client-table-row">
-                            <td className="client-td">{proj.projectName}</td>
-                            <td className="client-td">{proj.projectType}</td>
-                            <td className="client-td">{proj.invoiceName}</td>
-                            <td className="client-td">{proj.projectStage || '-'}</td>
-                            <td className="client-td">{del.key}</td>
-                            <td className="client-td">{formatDMY(del.deadline)}</td>
-                            <td className="client-td" style={{ color: del.status === 'complete' ? '#2ecc71' : del.status === 'pending' ? '#8B1C2B' : del.status === 'client review' ? '#f39c12' : '#95a5a6', fontWeight: 600 }}>{del.status}</td>
-                          </tr>
-                        ))
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )
-          ) : null}
-        </div>
+        </form>
+        {loading && <p className="client-loading" style={{ color: '#3182ce', textAlign: 'center', fontWeight: 500, marginTop: 16 }}>Loading...</p>}
+        {submitted && error && <p className="client-error" style={{ color: '#e53e3e', textAlign: 'center', fontWeight: 600, marginTop: 16, fontSize: 16 }}>{error}</p>}
       </div>
-    </>
+    </div>
   );
 }
