@@ -36,6 +36,9 @@ app.use('/api/manpower', mnapower);
 // Manpower CRUD API
 const manpowerCrud = require('./routes/manpowerCrud');
 app.use('/api/manpower-crud', manpowerCrud);
+// Comments route for deliverables (operates using projectName)
+const commentRoute = require('./routes/commentroute');
+app.use('/api/comments', commentRoute);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

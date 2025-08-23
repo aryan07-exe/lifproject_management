@@ -16,6 +16,7 @@ import Navbar from './Navbar.jsx';
   }
 
 function ManageProject() {
+  const API_BASE = process.env.REACT_APP_API_URL || 'https://lifproject-management.onrender.com';
   // Fetch all manpower for assignment dropdowns
   const [manpowerList, setManpowerList] = useState([]);
   useEffect(() => {
@@ -37,6 +38,8 @@ function ManageProject() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
+  // comments input state per deliverable id
+  const [commentInputs, setCommentInputs] = useState({});
 
   // Fetch all projects
   useEffect(() => {
@@ -127,6 +130,44 @@ function ManageProject() {
       setEditError("Failed to update project.");
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  const handleCommentChange = (deliverableId, value) => {
+    setCommentInputs(prev => ({ ...prev, [deliverableId]: value }));
+  };
+
+  const addCommentToDeliverable = async (deliverable, index) => {
+    const text = (commentInputs[deliverable._id] || '').trim();
+    if (!text) return alert('Please enter a comment');
+  if (!selected?.invoiceNumber) return alert('Invoice number missing for this project. Cannot add comment.');
+    try {
+  const res = await axios.post(`${API_BASE}/api/comments/invoice/${encodeURIComponent(selected.invoiceNumber)}/deliverable/${deliverable._id}`, { text, author: selected.projectName || 'Unknown' });
+      const updated = [...selected.deliverables];
+      if (!updated[index].comments) updated[index].comments = [];
+      updated[index].comments = [...updated[index].comments, res.data];
+      setSelected(prev => ({ ...prev, deliverables: updated }));
+      setCommentInputs(prev => ({ ...prev, [deliverable._id]: '' }));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to add comment');
+    }
+  };
+
+  const editComment = async (deliverableIndex, comment) => {
+    const newText = window.prompt('Edit comment', comment.text);
+    if (newText === null) return; // cancelled
+  if (!selected?.invoiceNumber) return alert('Invoice number missing for this project. Cannot edit comment.');
+    try {
+      const deliverable = selected.deliverables[deliverableIndex];
+  const res = await axios.put(`${API_BASE}/api/comments/invoice/${encodeURIComponent(selected.invoiceNumber)}/deliverable/${deliverable._id}/${comment._id}`, { text: newText, author: comment.author });
+      const updated = [...selected.deliverables];
+      const cIndex = updated[deliverableIndex].comments.findIndex(c => c._id === comment._id);
+      if (cIndex !== -1) updated[deliverableIndex].comments[cIndex] = res.data;
+      setSelected(prev => ({ ...prev, deliverables: updated }));
+    } catch (err) {
+  console.error('Edit comment failed', err?.response || err);
+  alert('Failed to edit comment: ' + (err?.response?.data?.message || err?.message || 'unknown'));
     }
   };
 
@@ -350,6 +391,24 @@ function ManageProject() {
                       </>
                     )}
                   </div>
+
+                  {/* Comments section for this deliverable in the view popup (display only) */}
+                  <div style={{marginTop:12}}>
+                    <label style={{fontWeight:600}}>Comments:</label>
+                    <div style={{marginTop:8}}>
+                      {(item.comments || []).length === 0 ? (
+                        <div style={{color:'#666',fontStyle:'italic'}}>No comments yet.</div>
+                      ) : (
+                        (item.comments || []).map((c, ci) => (
+                          <div key={ci} style={{background:'#fafafa',padding:'8px',borderRadius:6,marginBottom:6}}>
+                            <div style={{fontSize:13,fontWeight:600}}>{c.author || 'Unknown'}</div>
+                            <div style={{fontSize:13,color:'#333'}}>{c.text}</div>
+                            <div style={{fontSize:11,color:'#888'}}>{new Date(c.createdAt).toLocaleString()}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -544,6 +603,31 @@ function ManageProject() {
                       <div className="manage-field-col">
                         <label>Deadline:</label>
                         <input type="date" value={item.deadline?.slice(0, 10)} onChange={(e) => handleDeliverableChange(index, "deadline", e.target.value)} />
+                      </div>
+                    </div>
+                    <div style={{marginTop:12}}>
+                      <label style={{fontWeight:600}}>Comments:</label>
+                      <div style={{marginTop:8}}>
+                        {(item.comments || []).length === 0 ? (
+                          <div style={{color:'#666',fontStyle:'italic'}}>No comments yet.</div>
+                        ) : (
+                          (item.comments || []).map((c, ci) => (
+                            <div key={ci} style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'#fafafa',padding:'8px',borderRadius:6,marginBottom:6}}>
+                              <div>
+                                <div style={{fontSize:13,fontWeight:600}}>{c.author || 'Unknown'}</div>
+                                <div style={{fontSize:13,color:'#333'}}>{c.text}</div>
+                                <div style={{fontSize:11,color:'#888'}}>{new Date(c.createdAt).toLocaleString()}</div>
+                              </div>
+                              <div>
+                                <button type="button" onClick={() => editComment(index, c)} style={{border:'none',background:'transparent',color:'#3182ce',cursor:'pointer'}}>Edit</button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                        <div style={{display:'flex',gap:8,marginTop:8}}>
+                          <input placeholder="Add comment" value={commentInputs[item._id] || ''} onChange={(e) => handleCommentChange(item._id, e.target.value)} style={{flex:1,padding:8,borderRadius:6,border:'1px solid #e2e8f0'}} />
+                          <button type="button" onClick={() => addCommentToDeliverable(item, index)} style={{background:'#8B1C2B',color:'#fff',border:'none',padding:'8px 12px',borderRadius:6}}>Add</button>
+                        </div>
                       </div>
                     </div>
                   </div>

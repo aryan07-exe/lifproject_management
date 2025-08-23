@@ -46,6 +46,14 @@ const DeliverableSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'complete', 'client review','closed'], default: 'pending' },
   deadline: { type: Date }, // Not required for count deliverables
   count: { type: Number, default: 0 } // Only used for count deliverables
+  ,
+  comments: [
+    {
+      text: { type: String },
+      author: { type: String },
+      createdAt: { type: Date, default: Date.now }
+    }
+  ]
 });
 
 const ProjectDetailsSchema = new mongoose.Schema({

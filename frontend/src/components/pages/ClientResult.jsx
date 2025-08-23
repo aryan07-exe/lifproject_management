@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/Client.css';
 
 function formatDMY(dateStr) {
@@ -10,7 +10,10 @@ function formatDMY(dateStr) {
 }
 
 export default function ClientResult({ project }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
   if (!project) return <div style={{textAlign:'center', paddingTop:'20vh', fontSize:18, color:'#8B1C2B', fontWeight:600}}>No project found.</div>;
+
   return (
     <div style={{ minHeight: '100vh', background: '#f9f9f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px 12px' }}>
       <div className="client-project-details" style={{ 
@@ -69,43 +72,63 @@ export default function ClientResult({ project }) {
           </div>
         </div>
 
-        {/* Deliverables Section */}
+        {/* Deliverables Section (accordion) */}
         <div style={{ borderTop: '1px solid #eee', padding: '20px' }}>
           <h3 style={{ color: '#333', margin: '0 0 16px', fontWeight: 600, fontSize: 18 }}>Deliverables</h3>
-          <div style={{ 
-            display: 'grid', 
-            gap: '16px',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'
-          }}>
+
+          <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
             {(project.deliverables || []).length === 0 ? (
               <div style={{ textAlign: 'center', padding: '16px', color: '#666', background: '#f9f9f9', borderRadius: 8, fontSize: 15 }}>No deliverables found</div>
             ) : (
-              project.deliverables.map((del, idx) => (
-                <div key={idx} style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  background: '#fff',
-                  borderRadius: 8,
-                  padding: '14px 16px',
-                  border: '1px solid #eee'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 8 }}>
-                    <span style={{ fontWeight: 600, color: '#333', fontSize: 16, flex: 1 }}>{del.key}</span>
-                    <span style={{
-                      display: 'inline-flex',
+              (project.deliverables || []).map((del, idx) => (
+                <div key={del._id || idx} style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid #e9e9e9', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  <button
+                    onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                    aria-expanded={openIndex === idx}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      display: 'flex',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      padding: '4px 10px',
-                      borderRadius: 4,
-                      background: del.status === 'complete' ? '#e6f4ea' : del.status === 'pending' ? '#fbe9e7' : del.status === 'client review' ? '#fff3e0' : '#f5f5f5',
-                      color: del.status === 'complete' ? '#1b873b' : del.status === 'pending' ? '#c62828' : del.status === 'client review' ? '#e65100' : '#666',
-                      fontWeight: 600,
-                      fontSize: 13,
-                      lineHeight: '20px',
-                      textAlign: 'center',
-                      whiteSpace: 'nowrap'
-                    }}>{del.status}</span>
-                  </div>
-                  <div style={{ fontSize: 14, color: '#666' }}>Deadline: <span style={{color: '#333'}}>{formatDMY(del.deadline)}</span></div>
+                      padding: '14px 16px',
+                      background: openIndex === idx ? '#faf7f8' : '#fff',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 6, background: '#8B1C2B', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{(del.key || '').charAt(0).toUpperCase()}</div>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#222' }}>{del.key}</div>
+                        {del.description ? <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>{del.description}</div> : null}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, padding: '6px 10px', borderRadius: 6, background: del.status === 'complete' ? '#e6f4ea' : del.status === 'pending' ? '#fff2f2' : '#fff7e6', color: del.status === 'complete' ? '#1b873b' : '#c62828' }}>{del.status}</div>
+                      <div style={{ fontSize: 14, color: '#666' }}>{openIndex === idx ? '▴' : '▾'}</div>
+                    </div>
+                  </button>
+
+                  {openIndex === idx && (
+                    <div style={{ padding: '12px 16px 16px', borderTop: '1px solid #f0f0f0' }}>
+                      <div style={{ marginBottom: 8, color: '#444' }}><strong>Deadline:</strong> <span style={{color:'#333', marginLeft:6}}>{formatDMY(del.deadline)}</span></div>
+                      <div style={{ marginTop: 8 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 8 }}>Comments</div>
+                        {(!del.comments || del.comments.length === 0) ? (
+                          <div style={{ fontSize: 13, color: '#666', fontStyle: 'italic' }}>No comments yet.</div>
+                        ) : (
+                          (del.comments || []).map((c, ci) => (
+                            <div key={ci} style={{ background: '#fafafa', padding: 10, borderRadius: 6, marginBottom: 8 }}>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: '#222' }}>{c.author || 'Unknown'}</div>
+                              <div style={{ fontSize: 13, color: '#333', marginTop: 6 }}>{c.text}</div>
+                              <div style={{ fontSize: 11, color: '#888', marginTop: 8 }}>{c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             )}
