@@ -10,7 +10,7 @@ import EmployeeDashboard  from './components/pages/EmployeeDashboard.jsx';
 import Client from './components/pages/Client.jsx';
 import ClientResult from './components/pages/ClientResult.jsx';
 import ManpowerCrud from './components/pages/ManpowerCrud.jsx';
-
+import Graph from './components/pages/Graph.jsx';
 // Wrapper to get project from location state
 function ClientResultWrapper() {
   const location = useLocation();
@@ -32,6 +32,7 @@ function App() {
         <Route path="/client" element={<Client />} />
         <Route path="/client-result" element={<ClientResultWrapper />} />
         <Route path="/manage-manpower" element={<ManpowerCrud />} />
+        <Route path="/graph" element={<Graph />} />
       </Routes>
     </>
   );
