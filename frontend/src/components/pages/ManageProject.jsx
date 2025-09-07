@@ -15,6 +15,15 @@ import Navbar from './Navbar.jsx';
     return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getFullYear()}`;
   }
 
+  // Normalize author display: remove any 'life in frames' heading if present
+  function normalizeAuthor(author) {
+    if (!author) return 'Unknown';
+    let a = String(author || '');
+    // remove 'life in frames' (case-insensitive) and common separators, then trim
+    a = a.replace(/life\s*in\s*frames/ig, '').replace(/[:\-|\|]/g, '').replace(/\s+/g, ' ').trim();
+    return a || 'Unknown';
+  }
+
 function ManageProject() {
   const API_BASE = process.env.REACT_APP_API_URL || 'https://lifproject-management.onrender.com';
   // Fetch all manpower for assignment dropdowns
@@ -142,7 +151,8 @@ function ManageProject() {
     if (!text) return alert('Please enter a comment');
   if (!selected?.invoiceNumber) return alert('Invoice number missing for this project. Cannot add comment.');
     try {
-  const res = await axios.post(`${API_BASE}/api/comments/invoice/${encodeURIComponent(selected.invoiceNumber)}/deliverable/${deliverable._id}`, { text, author: selected.projectName || 'Unknown' });
+      // Comments added from ManageProject should be authored by admin
+  const res = await axios.post(`${API_BASE}/api/comments/invoice/${encodeURIComponent(selected.invoiceNumber)}/deliverable/${deliverable._id}`, { text, author: 'admin' });
       const updated = [...selected.deliverables];
       if (!updated[index].comments) updated[index].comments = [];
       updated[index].comments = [...updated[index].comments, res.data];
@@ -401,7 +411,7 @@ function ManageProject() {
                       ) : (
                         (item.comments || []).map((c, ci) => (
                           <div key={ci} style={{background:'#fafafa',padding:'8px',borderRadius:6,marginBottom:6}}>
-                            <div style={{fontSize:13,fontWeight:600}}>{c.author || 'Unknown'}</div>
+                            <div style={{fontSize:13,fontWeight:600}}>{normalizeAuthor(c.author)}</div>
                             <div style={{fontSize:13,color:'#333'}}>{c.text}</div>
                             <div style={{fontSize:11,color:'#888'}}>{new Date(c.createdAt).toLocaleString()}</div>
                           </div>
@@ -614,7 +624,7 @@ function ManageProject() {
                           (item.comments || []).map((c, ci) => (
                             <div key={ci} style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'#fafafa',padding:'8px',borderRadius:6,marginBottom:6}}>
                               <div>
-                                <div style={{fontSize:13,fontWeight:600}}>{c.author || 'Unknown'}</div>
+                                <div style={{fontSize:13,fontWeight:600}}>{normalizeAuthor(c.author)}</div>
                                 <div style={{fontSize:13,color:'#333'}}>{c.text}</div>
                                 <div style={{fontSize:11,color:'#888'}}>{new Date(c.createdAt).toLocaleString()}</div>
                               </div>

@@ -18,6 +18,13 @@ export default function ClientResult({ project }) {
   const [adding, setAdding] = useState({});
   const compactMode = (project && project.deliverables && project.deliverables.length > 12);
 
+  function normalizeAuthor(author) {
+    if (!author) return 'Unknown';
+    let a = String(author || '');
+    a = a.replace(/life\s*in\s*frames/ig, '').replace(/[:\-|\|]/g, '').replace(/\s+/g, ' ').trim();
+    return a || 'Unknown';
+  }
+
   useEffect(() => {
     setLocalDeliverables((project && project.deliverables) ? project.deliverables : []);
   }, [project]);
@@ -112,7 +119,7 @@ export default function ClientResult({ project }) {
                           <div className={"comments-list " + ((del.comments || []).length > 4 ? 'scrollable' : '')}>
                             {(del.comments || []).map((c, ci) => (
                               <div key={c._id || ci} className="comment">
-                                <div className="comment-author">{c.author || 'Unknown'}</div>
+                                <div className="comment-author">{normalizeAuthor(c.author)}</div>
                                 <div className="comment-text">{c.text}</div>
                                 <div className="comment-time">{c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}</div>
                               </div>
@@ -133,9 +140,10 @@ export default function ClientResult({ project }) {
                                 if (!text) return alert('Please enter a comment');
                                 if (!project?.invoiceNumber) return alert('Invoice number missing');
                                 if (adding[del._id]) return;
-                                try {
+                                  try {
                                   setAdding(prev => ({ ...prev, [del._id]: true }));
-                                  await axios.post(`${API_BASE}/api/comments/invoice/${encodeURIComponent(project.invoiceNumber)}/deliverable/${del._id}`, { text, author: (project.clientName || project.projectName || 'Guest') });
+                                  // Mark comments from the client page as authored by 'client'
+                                  await axios.post(`${API_BASE}/api/comments/invoice/${encodeURIComponent(project.invoiceNumber)}/deliverable/${del._id}`, { text, author: 'client' });
                                   // refresh comments for this deliverable
                                   const res = await axios.get(`${API_BASE}/api/comments/invoice/${encodeURIComponent(project.invoiceNumber)}/deliverable/${del._id}`);
                                   const comments = res.data && res.data.comments ? res.data.comments : [];
